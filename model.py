@@ -41,8 +41,7 @@ class Post(db.Model):
 class Analytics(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
-    likes = db.Column(db.Integer)
-    dislikes = db.Column(db.Integer)
+    like = db.Column(db.Boolean())
     comment = db.Column(db.Text)
     shares = db.Column(db.Integer)
     created_at = db.Column(db.String(100), nullable=False)
