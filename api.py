@@ -231,6 +231,15 @@ class AnalyticsAPI(Resource):
         Analytics.query.filter_by(post_id=post_id).update({"like":like, "comment":comment, "shares":shares, "created_at":created_at, "updated_at":updated_at, "user_id":user_id})
         db.session.commit()
         return analytic, 201
+    
+
+
+
+api.add_resource(UserAPI, '/users')
+api.add_resource(PostAPI, '/posts', '/posts/<int:id>')
+api.add_resource(AnalyticsAPI, '/analytics', '/analytics/<int:id>')
+
+
        
 
         
