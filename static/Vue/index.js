@@ -2,11 +2,10 @@ import router from "./router.js"
 import Navbar from "./Components/navbar.js"
 
 router.beforeEach((to, from, next) => {
-    if (to.name !== 'Login' && to.name !== 'Registration' &&  !localStorage.getItem('auth-token') ? true : false)
+    if (to.name !== 'Login' && to.name !== 'Registration' && to.name !== 'ManagerRegistration' &&  !localStorage.getItem('auth-token') ? true : false)
       next({ name: 'Login' })
     else next()
   })
-
 
 new Vue ({
     el: '#app',

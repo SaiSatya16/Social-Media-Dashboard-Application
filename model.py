@@ -34,7 +34,7 @@ class Post(db.Model):
     content = db.Column(db.Text)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     created_at = db.Column(db.String(100), nullable=False)
-    updated_at = db.Column(db.String(100), nullable=False)
+    updated_at = db.Column(db.String(100))
     image = db.Column(db.String(100))
     analytics = db.relationship('Analytics', backref='post', secondary='post_analytics_association')
 

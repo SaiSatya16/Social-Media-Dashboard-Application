@@ -371,20 +371,17 @@ const Home = Vue.component("home", {
                 </div>
                 <div class="modal-body">
                    <div class="my-3">
-                      <label for="Categoryname">Enter Category Name</label>
-                      <input  type="text" id="Categoryname" class="form-control" placeholder="Categoryname">
+                      <label for="title">Post Title:</label>
+                      <input v-model="title"  type="text" id="title" class="form-control">
                    </div>
                    <div class="my-3">
-                      <label for="Vegetarian">Type:</label>
-                      <select  id="Vegetarian" class="form-control" placeholder="Type">
-                         <option value="true">Veg</option>
-                         <option value="false">Non-Veg</option>
-                      </select>
+                   <label for="postContent">Post Content:</label>
+                   <textarea v-model="postContent" class="form-control" id="postContent" name="postContent" rows="5" required></textarea>
                    </div>
                 </div>
                 <div class="modal-footer">
                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                   <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Submit</button>
+                   <button @click="addpost" type="button" class="btn btn-primary" data-bs-dismiss="modal">Submit</button>
                 </div>
              </div>
           </div>
@@ -401,11 +398,79 @@ const Home = Vue.component("home", {
     data() {
       return {
         posts: [],
+        title: null,
+        postContent: null,
+        error: null,
         userRole: localStorage.getItem('role'),
         token: localStorage.getItem('auth-token'),
         user: localStorage.getItem('username'),
+        user_id: localStorage.getItem('id'),
       };
     },
+
+    methods: {
+
+        async getpost() {
+            try {
+            const res = await fetch('/posts', {
+                headers: {
+                    'Authentication-Token': this.token,
+                    'Authentication-Role': this.userRole,
+                },
+            }
+            
+            );
+            if (res.ok) {
+                const data = await res.json();
+                this.posts = data;
+                }
+                else {
+                    const errorData = await res.json();
+                    console.error(errorData);
+                }
+            } catch (error) {
+                console.error(error);
+            }
+            },
+        
+        async addpost() {
+            try {
+
+                const currentDate = new Date();
+                const day = String(currentDate.getDate()).padStart(2, '0');
+                const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+                const year = currentDate.getFullYear();
+        
+                const formattedDate = `${year}-${month}-${day}`;
+
+
+            const res = await fetch('/posts', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authentication-Token': this.token,
+                    'Authentication-Role': this.userRole,
+                },
+                body: JSON.stringify({
+                    title: this.title,
+                    content: this.postContent,
+                    user_id: this.user_id,
+                    created_at: formattedDate,
+                }),
+            });
+            if (res.ok) {
+                this.getpost();
+            } else {
+                const errorData = await res.json();
+                console.error(errorData);
+            }
+            } catch (error) {
+            console.error(error);
+            }
+        },
+    },
+    
+
 
 
 

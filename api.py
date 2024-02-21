@@ -127,13 +127,13 @@ class PostAPI(Resource):
             
 
     @marshal_with(post_fields)
-    def post(self, id):
+    def post(self):
         args = create_post_parser.parse_args()
-        title = args['title', None]
-        content = args['content', None]
-        user_id = id
-        created_at = args['created_at', None]
-        updated_at = args['updated_at', None]
+        title = args.get('title', None)
+        content = args.get('content', None)
+        user_id =   args.get('user_id', None)
+        created_at = args.get('created_at', None)
+        updated_at = args.get('updated_at', None)
         if title is None:
             raise BusinessValidationError(status_code=400, error_code="BE1001", error_message="Title is required")
         if content is None:
@@ -152,11 +152,11 @@ class PostAPI(Resource):
     @marshal_with(post_fields)
     def put(self, id):
         args = update_post_parser.parse_args()
-        title = args['title', None]
-        content = args['content', None]
-        user_id = args['user_id', None]
-        created_at = args['created_at', None]
-        updated_at = args['updated_at', None]
+        title = args.get('title', None)
+        content = args.get('content', None)
+        user_id =   args.get('user_id', None)
+        created_at = args.get('created_at', None)
+        updated_at = args.get('updated_at', None)
         if title is None:
             raise BusinessValidationError(status_code=400, error_code="BE1001", error_message="Title is required")
         if content is None:
@@ -197,12 +197,13 @@ class AnalyticsAPI(Resource):
     def post(self, id):
         args = create_analytics_parser.parse_args()
         post_id = id
-        like = args['like', None]
-        comment = args['comment', None]
-        shares = args['shares', None]
-        created_at = args['created_at', None]
-        updated_at = args['updated_at', None]
-        user_id = args['user_id', None]
+        like = args.get('like', None)
+        comment = args.get('comment', None)
+        shares = args.get('shares', None)
+        created_at = args.get('created_at', None)
+        updated_at = args.get('updated_at', None)
+        user_id = args.get('user_id', None)
+
         
         analytic = Analytics(post_id=post_id, like=like, comment=comment, shares=shares, created_at=created_at, updated_at=updated_at, user_id=user_id)
         db.session.add(analytic)
@@ -218,12 +219,12 @@ class AnalyticsAPI(Resource):
     def put(self, id):
         args = update_analytics_parser.parse_args()
         post_id = id
-        like = args['like', None]
-        comment = args['comment', None]
-        shares = args['shares', None]
-        created_at = args['created_at', None]
-        updated_at = args['updated_at', None]
-        user_id = args['user_id', None]
+        like = args.get('like', None)
+        comment = args.get('comment', None)
+        shares = args.get('shares', None)
+        created_at = args.get('created_at', None)
+        updated_at = args.get('updated_at', None)
+        user_id = args.get('user_id', None)
 
         analytic = Analytics.query.filter_by(post_id=post_id).first()
         if analytic is None:
