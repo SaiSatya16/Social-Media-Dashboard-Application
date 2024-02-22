@@ -20,7 +20,7 @@ class User(db.Model, UserMixin):
     fs_uniquifier = db.Column(db.String(255), unique=True, nullable=False)
     roles = db.relationship('Role', secondary='roles_users',
                             backref=db.backref('users', lazy='dynamic'))
-    posts = db.relationship('Post', backref='author', secondary='user_post_association')
+    posts = db.relationship('Post', backref='author', lazy='dynamic')
 
 
 class Role(db.Model, RoleMixin):
@@ -45,12 +45,12 @@ class Analytics(db.Model):
     comment = db.Column(db.Text)
     shares = db.Column(db.Integer)
     created_at = db.Column(db.String(100), nullable=False)
-    updated_at = db.Column(db.String(100), nullable=False)
+    updated_at = db.Column(db.String(100))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
-class user_post_association(db.Model):
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'),primary_key = True, nullable=False)
-    post_id = db.Column(db.Integer, db.ForeignKey('post.id'),primary_key = True, nullable=False)
+# class user_post_association(db.Model):
+#     user_id = db.Column(db.Integer, db.ForeignKey('user.id'),primary_key = True, nullable=False)
+#     post_id = db.Column(db.Integer, db.ForeignKey('post.id'),primary_key = True, nullable=False)
 
 class post_analytics_association(db.Model):
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'),primary_key = True, nullable=False)

@@ -118,32 +118,37 @@ const Home = Vue.component("home", {
         </div>
     
             <hr>
-            <div class="card mb-3">
+            <div v-for="post in posts" class="card mb-3" >
                 <div class="card-header">
                     <img src="https://media-exp1.licdn.com/dms/image/C4E03AQGiWpTUewQ76Q/profile-displayphoto-shrink_400_400/0/1613923672228?e=1669248000&v=beta&t=CwG-2a-EpNaLNhXLKJZc9wIGyrA587NjE2cM3p9KM48" class="postphoto">
                     <div class="d-inline-flex flex-column ml-1 align-middle">
                         <span class="posttext">
                             <a href="https://www.linkedin.com/in/malan/" target="_blank" style="color: #212529;">
-                                David J. Malan
+                            {{post.username}}
+                            
                             </a>
                         </span>
                         <span class="profile-desc">
                             I teach CS50
                         </span>
-                        <span class="profile-desc">25a
+                        <span class="profile-desc"> {{post.created_at}}
                             <i class="fas fa-globe-americas fa-sm">
                             </i>
                         </span>
                     </div>
-                    <span class="float-right">
-                        <i class="fas fa-ellipsis-h fa-md">
-                        </i>
-                    </span>
-                </div>
+
+                   
+  </span>
+</div>
+
+
+                   
                 <div>
-                    <p class="card-text m-3 card-desc">
-                        They have done great things! Tebrikler Kodluyoruz!
-                    </p>
+                <div class="card-body">
+  <h5 class="card-title">{{post.title}}</h5> <p class="card-text m-3 card-desc">
+    {{post.content}}
+  </p>
+  </div>
                     <div>
                         <img src="https://pbs.twimg.com/media/Em2_xBbXUAEVDx1.jpg" class="card-img-top mb-1"
                             alt="..." />
@@ -164,88 +169,16 @@ const Home = Vue.component("home", {
                             <button class="ref btn btn-light p-2">
                                 <i class="far fa-thumbs-up fa-md" style="font-size: 1.2rem">
                                     <span class="ml-2 mediatext">
-                                        Beğen
+                                        Like
                                     </span>
                                 </i>
                             </button>
                         </span>
-                        <span>
-                            <button class="ref btn btn-light p-2 ml-4">
-                                <i class="far fa-comment fa-md" style="font-size: 1.2rem">
-                                    <span class="ml-2 mediatext">
-                                        Yorum Yap
-                                    </span>
-                                </i>
-                            </button>
-                        </span>
-                        <span>
-                            <button class="ref btn btn-light p-2 ml-4">
-                                <i class="fas fa-share fa-md" style="font-size: 1.2rem">
-                                    <span class="ml-2 mediatext">
-                                        Paylaş
-                                    </span>
-                                </i>
-                            </button>
-                        </span>
-                        <span>
-                            <button class="ref btn btn-light p-2 ml-4">
-                                <i class="fas fa-paper-plane fa-md" style="font-size: 1.2rem">
-                                    <span class="ml-2 mediatext">
-                                        Gönder
-                                    </span>
-                                </i>
-                            </button>
-                        </span>
-                    </div>
-                </div>
-            </div>
-            <div class="card mt-2 mb-3">
-                <div class="card-header">
-                    <span>
-                        <img src="https://miro.medium.com/max/2400/1*dyO41GLMpO6Qdtw8QfjvFw.jpeg" class="postphoto">
-                        <div class="d-inline-flex flex-column ml-1 align-middle">
-                            <span class="posttext">
-                                <a href="https://www.linkedin.com/in/ozanhalis/" target="_blank" style="color: #212529">
-                                    Ozan Halis İLTER
-                                </a>
-                            </span>
-                            <span class="profile-desc">Team Leader at YetGen | CodeCraft | Kablosuz Beyin |IEEE
-                                MEF...</span>
-                            <span class="profile-desc">1s
-                                <i class="fas fa-globe-americas fa-sm"></i>
-                            </span>
-                        </div>
-
-                        <span class="float-right">
-                            <i class="fas fa-ellipsis-h fa-md"></i>
-                        </span>
-                </div>
-                <div>
-                    <p class="card-text m-3 card-desc">
-                        Erhan Erkut hocamız ile birlikte YetGen'de harika şeyler yapmak için geliyoruz!
-                    </p>
-                    <div>
-                        <img src="https://miro.medium.com/max/1080/1*gdDWFSvHDt57DS2zsh_0Bg.png"
-                            class="card-img-top mb-1" alt="..." />
-                    </div>
-                    <div class="ml-3 mb-2">
-                        <span class="">
-                            <img src="https://static-exp1.licdn.com/sc/h/d310t2g24pvdy4pt1jkedo4yb" alt="Like Icon">
-                        </span>
-                        <span>
-                            <img src="https://static-exp1.licdn.com/sc/h/5thsbmikm6a8uov24ygwd914f" alt="Clap Icon">
-                        </span>
-                        <span class="profile-desc">
-                            <img src="https://static-exp1.licdn.com/sc/h/7fx9nkd7mx8avdpqm5hqcbi97" alt="Heart Icon">
-                            210
-                        </span>
-                    </div>
-                    <div class="card-footer mt-1  text-center">
                         <span>
                             <button class="ref btn btn-light p-2">
-                                <i class="far fa-thumbs-up fa-md" style="font-size: 1.2rem">
+                                <i class="far fa-thumbs-down fa-md" style="font-size: 1.2rem">
                                     <span class="ml-2 mediatext">
-                                        Beğen
+                                        Dislike
                                     </span>
                                 </i>
                             </button>
@@ -254,16 +187,7 @@ const Home = Vue.component("home", {
                             <button class="ref btn btn-light p-2 ml-4">
                                 <i class="far fa-comment fa-md" style="font-size: 1.2rem">
                                     <span class="ml-2 mediatext">
-                                        Yorum Yap
-                                    </span>
-                                </i>
-                            </button>
-                        </span>
-                        <span>
-                            <button class="ref btn btn-light p-2 ml-4">
-                                <i class="fas fa-share fa-md" style="font-size: 1.2rem">
-                                    <span class="ml-2 mediatext">
-                                        Paylaş
+                                        Comment
                                     </span>
                                 </i>
                             </button>
@@ -272,92 +196,14 @@ const Home = Vue.component("home", {
                             <button class="ref btn btn-light p-2 ml-4">
                                 <i class="fas fa-paper-plane fa-md" style="font-size: 1.2rem">
                                     <span class="ml-2 mediatext">
-                                        Gönder
+                                       Share
                                     </span>
                                 </i>
                             </button>
                         </span>
                     </div>
                 </div>
-            </div>
-            <div class="card mt-2">
-                <div class="card-header">
-                    <span>
-                        <img src="https://media-exp1.licdn.com/dms/image/C5603AQFOc4FfGSHrgw/profile-displayphoto-shrink_400_400/0/1619210485825?e=1669248000&v=beta&t=QDvlUsiaEcz0OGWsAq5bUuR1f1vd33Cjot6qqK4hcDM" class="postphoto">
-                        <div class="d-inline-flex flex-column ml-1 align-middle">
-                            <span class="posttext">
-                                <a href="https://www.linkedin.com/in/ramazansancar/" target="_blank"
-                                    style="color: black;">
-                                    Ramazan Sancar
-                                </a>
-                            </span>
-                            <span class="profile-desc">Co-Founder at Kablosuz Beyin | Intern & Community Lead at
-                                Kod...</span>
-                            <span class="profile-desc">25a
-                                <i class="fas fa-globe-americas fa-sm"></i>
-                            </span>
-                        </div>
-                        <span class="float-right">
-                            <i class="fas fa-ellipsis-h fa-md">
-                            </i>
-                        </span>
-                </div>
-                <div>
-                    <p class="card-text m-3 card-desc">
-                        Cat Özel Harekat'a katılmak isteyenleri şöyle alalım..
-                    </p>
-                    <div>
-                        <img src="https://i.pinimg.com/originals/ef/38/6a/ef386ab449cae924321692f10dffc783.jpg" class="card-img-top mb-1" alt="..." />
-                    </div>
-                    <div class="ml-3 mb-2">
-                        <span class=""><img src="https://static-exp1.licdn.com/sc/h/d310t2g24pvdy4pt1jkedo4yb"
-                                alt="Like Icon"></span>
-                        <span class=""><img src="https://static-exp1.licdn.com/sc/h/5thsbmikm6a8uov24ygwd914f"
-                                alt="Clap Icon"></span>
-                        <span class="profile-desc"><img
-                                src="https://static-exp1.licdn.com/sc/h/7fx9nkd7mx8avdpqm5hqcbi97" alt="Heart Icon"> 224
-                        </span>
-                    </div>
-                    <div class="card-footer mt-1 text-center">
-                        <span>
-                            <button class="ref btn btn-light p-2">
-                                <i class="far fa-thumbs-up fa-md" style="font-size: 1.2rem">
-                                    <span class="ml-2 mediatext">
-                                        Beğen
-                                    </span>
-                                </i>
-                            </button>
-                        </span>
-                        <span>
-                            <button class="ref btn btn-light p-2 ml-4">
-                                <i class="far fa-comment fa-md" style="font-size: 1.2rem">
-                                    <span class="ml-2 mediatext">
-                                        Yorum Yap
-                                    </span>
-                                </i>
-                            </button>
-                        </span>
-                        <span>
-                            <button class="ref btn btn-light p-2 ml-4">
-                                <i class="fas fa-share fa-md" style="font-size: 1.2rem">
-                                    <span class="ml-2 mediatext">
-                                        Paylaş
-                                    </span>
-                                </i>
-                            </button>
-                        </span>
-                        <span>
-                            <button class="ref btn btn-light p-2 ml-4">
-                                <i class="fas fa-paper-plane fa-md" style="font-size: 1.2rem">
-                                    <span class="ml-2 mediatext">
-                                        Gönder
-                                    </span>
-                                </i>
-                            </button>
-                        </span>
-                    </div>
-                </div>
-            </div>
+            </div>x
         </div>
     </div>
 
@@ -397,7 +243,7 @@ const Home = Vue.component("home", {
 
     data() {
       return {
-        posts: [],
+        posts : [],
         title: null,
         postContent: null,
         error: null,
@@ -410,7 +256,7 @@ const Home = Vue.component("home", {
 
     methods: {
 
-        async getpost() {
+        async getposts() {
             try {
             const res = await fetch('/posts', {
                 headers: {
@@ -433,49 +279,50 @@ const Home = Vue.component("home", {
             }
             },
         
-        async addpost() {
-            try {
-
-                const currentDate = new Date();
-                const day = String(currentDate.getDate()).padStart(2, '0');
-                const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Months are zero-based
-                const year = currentDate.getFullYear();
-        
-                const formattedDate = `${year}-${month}-${day}`;
-
-
-            const res = await fetch('/posts', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authentication-Token': this.token,
-                    'Authentication-Role': this.userRole,
-                },
-                body: JSON.stringify({
-                    title: this.title,
-                    content: this.postContent,
-                    user_id: this.user_id,
-                    created_at: formattedDate,
-                }),
-            });
-            if (res.ok) {
-                this.getpost();
-            } else {
-                const errorData = await res.json();
-                console.error(errorData);
-            }
-            } catch (error) {
-            console.error(error);
-            }
-        },
+            async addpost() {
+                try {
+                    const currentDate = new Date();
+                    const day = String(currentDate.getDate()).padStart(2, '0');
+                    const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+                    const year = currentDate.getFullYear();
+                    const hours = String(currentDate.getHours() % 12 || 12).padStart(2, '0');
+                    const minutes = String(currentDate.getMinutes()).padStart(2, '0');
+                    const ampm = currentDate.getHours() >= 12 ? 'PM' : 'AM';
+            
+                    const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes} ${ampm}`;
+            
+                    const res = await fetch('/posts', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authentication-Token': this.token,
+                            'Authentication-Role': this.userRole,
+                        },
+                        body: JSON.stringify({
+                            title: this.title,
+                            content: this.postContent,
+                            user_id: this.user_id,
+                            created_at: formattedDateTime,
+                        }),
+                    });
+            
+                    if (res.ok) {
+                        this.getposts();
+                    } else {
+                        const errorData = await res.json();
+                        console.error(errorData);
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
+            },
+            
     },
-    
 
-
-
-
-
-
+    mounted() {
+        document.title = "Home";
+        this.getposts();
+    },
 
   });
   

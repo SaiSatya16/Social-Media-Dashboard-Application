@@ -100,29 +100,83 @@ class UserAPI(Resource):
     def get(self):
         data = []
         users = User.query.all()
-        if users is None:
+        if not users:
             raise NotFoundError(status_code=404)
+        
         for user in users:
+            creator_found = False  # Flag to check if "Creator" role is found
             posts = []
-            for post in user.posts:
-                posts.append({"id":post.id,"title":post.title,"content":post.content,"user_id":post.user_id,"created_at":post.created_at,"updated_at":post.updated_at})
-            data.append({"id":user.id,"username":user.username,"email":user.email,"active":user.active,"posts":posts})
+
+            for role in user.roles:
+                if role.name == "Creator":
+                    creator_found = True
+                    for post in user.posts:
+                        posts.append({
+                            "id": post.id,
+                            "title": post.title,
+                            "content": post.content,
+                            "user_id": post.user_id,
+                            "created_at": post.created_at,
+                            "updated_at": post.updated_at
+                        })
+
+            if creator_found:
+                data.append({
+                    "id": user.id,
+                    "username": user.username,
+                    "email": user.email,
+                    "active": user.active,
+                    "posts": posts
+                })
+
+        if not data:
+            return "No Creators Found", 404
+
         return data
 
 
 
+
 class PostAPI(Resource):
-    @marshal_with(post_fields)
     def get(self):
         data = []
-        posts = Post.query.all()
-        if posts is None:
-            raise NotFoundError(status_code=404)
+
+        #query all posts order by created_at
+        posts = Post.query.order_by(Post.created_at.desc()).all()
+
+        if not posts:
+            # Return an empty list if there are no posts
+            return data
+
         for post in posts:
             analytics = []
             for analytic in post.analytics:
-                analytics.append({"id":analytic.id,"post_id":analytic.post_id,"likes":analytic.likes,"dislikes":analytic.dislikes,"comment":analytic.comment,"shares":analytic.shares,"created_at":analytic.created_at,"updated_at":analytic.updated_at,"user_id":analytic.user_id})
-            data.append({"id":post.id,"title":post.title,"content":post.content,"user_id":post.user_id,"created_at":post.created_at,"updated_at":post.updated_at, "analytics":analytics})
+                analytics.append({
+                    "id": analytic.id,
+                    "post_id": analytic.post_id,
+                    "likes": analytic.likes,
+                    "dislikes": analytic.dislikes,
+                    "comment": analytic.comment,
+                    "shares": analytic.shares,
+                    "created_at": analytic.created_at,
+                    "updated_at": analytic.updated_at,
+                    "user_id": analytic.user_id
+                })
+            
+            
+            
+
+            data.append({
+                "id": post.id,
+                "title": post.title,
+                "content": post.content,
+                "user_id": post.user_id,
+                "created_at": post.created_at,
+                "updated_at": post.updated_at,
+                "analytics": analytics,
+                "username": post.author.username
+            })
+
         return data
             
 
@@ -142,11 +196,11 @@ class PostAPI(Resource):
         post = Post(title=title, content=content, user_id=user_id, created_at=created_at, updated_at=updated_at)
         db.session.add(post)
         db.session.commit()
-        p = Post.query.filter_by(title=title, content=content, user_id=user_id, created_at=created_at, updated_at=updated_at).first()
-        pid = p.id
-        asso = user_post_association(user_id=user_id, post_id=pid)
-        db.session.add(asso)
-        db.session.commit()
+        # p = Post.query.filter_by(title=title, content=content, user_id=user_id, created_at=created_at, updated_at=updated_at).first()
+        # pid = p.id
+        # asso = user_post_association(user_id=user_id, post_id=pid)
+        # db.session.add(asso)
+        # db.session.commit()
         return post, 201
     
     @marshal_with(post_fields)
@@ -233,12 +287,38 @@ class AnalyticsAPI(Resource):
         db.session.commit()
         return analytic, 201
     
+class RoleAPI(Resource):
+    def get(self):
+        data = []
+        roles = Role.query.all()
+        if not roles:
+            raise NotFoundError(status_code=404)
+        
+        for role in roles:
+            users = []
+            for user in role.users:
+                users.append({
+                    "id": user.id,
+                    "username": user.username,
+                    "email": user.email,
+                    "active": user.active
+                })
+            data.append({
+                "id": role.id,
+                "name": role.name,
+                "description": role.description,
+                "users": users
+            })
+
+        return data
+    
 
 
 
 api.add_resource(UserAPI, '/users')
 api.add_resource(PostAPI, '/posts', '/posts/<int:id>')
 api.add_resource(AnalyticsAPI, '/analytics', '/analytics/<int:id>')
+api.add_resource(RoleAPI, '/roles')
 
 
        
