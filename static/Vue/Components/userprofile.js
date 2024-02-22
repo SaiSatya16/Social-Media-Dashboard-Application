@@ -14,11 +14,18 @@ const Userprofile = Vue.component("userprofile", {
             <div class="card-body mt-4" style="font-family: 'Poppins', sans-serif;">
                <p class="card-title header text-center">
                   <a @click=userprofile(user_id)
-                     style="color: #212529;">{{posts[0]['username']}}</a>
+                     style="color: #212529;">{{ user.username }}</a>
                </p>
                <div class="text-center" style="margin-bottom: 10px; color: #5f5f5f;">
-                  <span class="text-center" style="font-size: 13px;">Full Stack Application Developer</span>
+                  <span class="text-center" style="font-size: 13px;"> {{ user.description }} </span>
                </div>
+
+               <div v-if="!current_user" class="text-center">
+                <i :data-bs-target="'#edituserModal' + user.id" data-bs-toggle="modal" class="fas fa-edit fa-md" style="font-size: 1.2rem; color: #0a66c2"></i>
+                </i>
+                </div>
+
+
                <hr>
                <div class="card-text">
                   <div>
@@ -124,7 +131,7 @@ const Userprofile = Vue.component("userprofile", {
 
                <div v-if="!current_user" class="card-footer mt-1 text-center">
                 <span>
-                <button class="ref btn btn-light p-2">
+                <button :data-bs-target="'#editpostModal' + post.id" data-bs-toggle="modal" class="ref btn btn-light p-2 ml-4"  >
                 <i class="fas fa-edit fa-md" style="font-size: 1.2rem">
                 <span class="ml-2 mediatext">
                 Edit
@@ -132,7 +139,7 @@ const Userprofile = Vue.component("userprofile", {
                 </i>
                 </button>
 
-                <button class="ref btn btn-light p-2 ml-4">
+                <button @click="deletepost(post)" class="ref btn btn-light p-2 ml-4">
                 <i class="fas fa-trash fa-md" style="font-size: 1.2rem">
                 <span class="ml-2 mediatext">
                 Delete
@@ -271,6 +278,61 @@ const Userprofile = Vue.component("userprofile", {
          </div>
       </div>
    </div>
+
+   <div v-for="post in posts" :key="post.id">
+      <div class="modal fade" :id="'editpostModal' + post.id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="'editpostModalLabel' + post.id" aria-hidden="true">
+         <div class="modal-dialog">
+            <div class="modal-content">
+               <div class="modal-header">
+                  <h1 class="modal-title fs-5" :id="'editpostModal' + post.id">Edit Post</h1>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+               </div>
+               <div class="modal-body">
+               <div class="my-3">
+                <label for="title">Edit Title</label>
+                <input v-model="post.title" type="text" id="posttitle" class="form-control" :placeholder= "post.title">
+                </div>
+                  <div class="my-3">
+                     <label for="postContent">Edit Content:</label>
+                     <textarea v-model="post.content" class="form-control" id="postcontent" name="postcontent" rows="5" required></textarea>
+                  </div>
+               </div>
+               <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button @click="editpost(post)"  type="button"  class="btn btn-primary" data-bs-dismiss="modal">Submit</button>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+
+   <div class="modal fade" :id="'edituserModal' + user.id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="'edituserModalLabel' + user.id" aria-hidden="true">
+         <div class="modal-dialog">
+            <div class="modal-content">
+               <div class="modal-header">
+                  <h1 class="modal-title fs-5" :id="'edituserModal' + user.id">Edit Post</h1>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+               </div>
+               <div class="modal-body">
+               <div class="my-3">
+                <label for="title">Edit Username</label>
+                <input v-model="user.username" type="text" id="username" class="form-control">
+                </div>
+                  <div class="my-3">
+                     <label for="postContent">Edit Description:</label>
+                     <textarea v-model="user.description" class="form-control" id="description" name="description" rows="5" required></textarea>
+                  </div>
+               </div>
+               <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button @click="editprofile(user)" type="button"  class="btn btn-primary" data-bs-dismiss="modal">Submit</button>
+               </div>
+            </div>
+         </div>
+      </div>
+
+
+
 </div>
         
         
@@ -288,10 +350,64 @@ const Userprofile = Vue.component("userprofile", {
                 current_user_id: localStorage.getItem('id'),
                 postcomment: null,
                 current_user : true,
+                user : null,
             }
         },
 
         methods: {
+
+            async getuser(id) {
+                try {
+                const res = await fetch('/user/'+id, {
+                    headers: {
+                        'Authentication-Token': this.token,
+                        'Authentication-Role': this.userRole,
+                    },
+                }
+                
+                );
+                if (res.ok) {
+                    const data = await res.json();
+                    this.user = data;
+                    }
+                    else {
+                        const errorData = await res.json();
+                        console.error(errorData);
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
+                },
+
+                async editprofile(user) {
+                    try {
+                        const res = await fetch(`/user/${ user.id }`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authentication-Token': this.token,
+                                'Authentication-Role': this.userRole,
+                            },
+                            body: JSON.stringify({
+                                username: user.username,
+                                description: user.description,
+                            }),
+                        });
+
+                        if (res.ok) {
+                            this.getuser(user.id);
+                        } else {
+                            const errorData = await res.json();
+                            console.error(errorData);
+                        }
+                    } catch (error) {
+                        console.error(error);
+                    }
+                },
+
+
+
+
 
             async getposts() {
                 try {
@@ -315,6 +431,37 @@ const Userprofile = Vue.component("userprofile", {
                     console.error(error);
                 }
                 },
+
+
+                async editpost(post) {
+                    try {
+                        const res = await fetch(`/posts/${post.id}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authentication-Token': this.token,
+                                'Authentication-Role': this.userRole,
+                            },
+                            body: JSON.stringify({
+                                title: post.title,
+                                content: post.content,
+                            }),
+                        });
+
+                        if (res.ok) {
+                            this.getposts();
+                        } else {
+                            const errorData = await res.json();
+                            console.error(errorData);
+                        }
+                    } catch (error) {
+                        console.error(error);
+                    }
+                },
+
+
+
+
     
                 async addlike(post_id) {
                     try {
@@ -438,6 +585,31 @@ const Userprofile = Vue.component("userprofile", {
                         console.error(error);
                     }
                 },
+
+                async deletepost(post) {
+                    try {
+
+                        const do_delete = confirm("Are you sure you want to delete this Post?");
+                        if (!do_delete) {
+                            const res = await fetch(`/posts/${post.id}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'Authentication-Token': this.token,
+                                    'Authentication-Role': this.userRole,
+                                },
+                            });
+                            if (res.ok) {
+                                this.getposts();
+                            } else {
+                                const errorData = await res.json();
+                                console.error(errorData);
+                            }
+                        } 
+                }
+                catch (error) {
+                    console.error(error);
+                }
+            },
     
     
     
@@ -483,6 +655,7 @@ const Userprofile = Vue.component("userprofile", {
             if (this.current_user_id == this.user_id) {
                 this.current_user = false;
             }
+            this.getuser(this.user_id);
 
         },
     

@@ -47,7 +47,7 @@ const Navbar = Vue.component('Navbar', {
         <li v-if="['Admin', 'Creator'].includes(role)" class="nav-item mr-3">
           <a class="nav-link" href="#" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
             <img class="rounded-circle ml-2" src="https://media-exp1.licdn.com/dms/image/C4D03AQFzRzfBHzBpbA/profile-displayphoto-shrink_100_100/0/1661208519486?e=1669248000&v=beta&t=F_N3_KlkhDP4RbePX7fUwfN9TtrmwSAdb-1OW3VvUA4" style="width: 25px; height: 25px;" />
-            <div class="menutext"><router-link class="menutext mt-2" to="/me">Me</router-link></div>
+            <div  class="menutext mt-2" @click=userprofile(user_id) >Me</div>
           </a>
         </li>
         
@@ -72,9 +72,16 @@ const Navbar = Vue.component('Navbar', {
         id : localStorage.getItem('id'),
         inactivityTimeout: 30 * 60 * 1000, // 30 minutes in milliseconds
         inactivityTimer: null,
+        user_id: localStorage.getItem('id'),
       };
     },
     methods: {
+
+      userprofile(user_id) {
+        this.$router.push("/profile/" + user_id);
+    },
+
+
       logout() {
         localStorage.removeItem('auth-token');
         localStorage.removeItem('role');
@@ -129,6 +136,12 @@ const Navbar = Vue.component('Navbar', {
       document.removeEventListener('keydown', this.handleUserActivity);
       this.stopInactivityTimer();
     },
+
+
+
+
+
+    
   });
   
   export default Navbar;

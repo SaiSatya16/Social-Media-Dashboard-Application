@@ -87,6 +87,10 @@ comment_parser.add_argument('comment')
 comment_parser.add_argument('user_id')
 comment_parser.add_argument('created_at')
 
+update_user_parser = reqparse.RequestParser()
+update_user_parser.add_argument('username')
+update_user_parser.add_argument('description')
+
 
 
 
@@ -112,44 +116,31 @@ update_analytics_parser.add_argument('user_id')
 
 
 #==============================API========================================
-# class UserAPI(Resource):
-#     def get(self):
-#         data = []
-#         users = User.query.all()
-#         if not users:
-#             raise NotFoundError(status_code=404)
+class UserAPI(Resource):
+
+    def get(self, id):
+        user = User.query.filter_by(id=id).first()
+        if user is None:
+            raise NotFoundError(status_code=404)
+        return {"id": user.id, "username": user.username, "description": user.desscription}
+
+
+    def put(self, id):
+        args = update_user_parser.parse_args()
+        username = args.get('username', None)
+        description = args.get('description', None)
+        if username is None:
+            raise BusinessValidationError(status_code=400, error_code="BE1001", error_message="Username is required")
+        if description is None:
+            raise BusinessValidationError(status_code=400, error_code="BE1002", error_message="Description is required")
         
-#         for user in users:
-#             creator_found = False  # Flag to check if "Creator" role is found
-#             posts = []
-
-#             for role in user.roles:
-#                 if role.name == "Creator":
-#                     creator_found = True
-#                     for post in user.posts:
-#                         posts.append({
-#                             "id": post.id,
-#                             "title": post.title,
-#                             "content": post.content,
-#                             "user_id": post.user_id,
-#                             "created_at": post.created_at,
-#                             "updated_at": post.updated_at
-#                         })
-
-#             if creator_found:
-#                 data.append({
-#                     "id": user.id,
-#                     "username": user.username,
-#                     "email": user.email,
-#                     "active": user.active,
-#                     "posts": posts
-#                 })
-
-#         if not data:
-#             return "No Creators Found", 404
-
-#         return data
-
+        user = User.query.filter_by(id=id).first()
+        if user is None:
+            raise NotFoundError(status_code=404)
+        User.query.filter_by(id=id).update({"username":username, "desscription":description})
+        db.session.commit()
+        return {"id": user.id, "username": user.username, "description": user.desscription}, 201
+    
 
 class UserProfileAPI(Resource):
     def get(self, id):
@@ -263,9 +254,6 @@ class PostAPI(Resource):
         args = update_post_parser.parse_args()
         title = args.get('title', None)
         content = args.get('content', None)
-        user_id =   args.get('user_id', None)
-        created_at = args.get('created_at', None)
-        updated_at = args.get('updated_at', None)
         if title is None:
             raise BusinessValidationError(status_code=400, error_code="BE1001", error_message="Title is required")
         if content is None:
@@ -274,13 +262,13 @@ class PostAPI(Resource):
         post = Post.query.filter_by(id=id).first()
         if post is None:
             raise NotFoundError(status_code=404)
-        Post.query.filter_by(id=id).update({"title":title, "content":content, "user_id":user_id, "created_at":created_at, "updated_at":updated_at})
+        Post.query.filter_by(id=id).update({"title":title, "content":content})
         db.session.commit()
         return post, 201
     
     @marshal_with(post_fields)
     def delete(self, id):
-        post = Post.query.filter_by(id=id)
+        post = Post.query.get(id)
         if post:
             db.session.query(post_analytics_association).filter_by(post_id=id).delete()
             db.session.query(Analytics).filter_by(post_id=id).delete()
@@ -442,6 +430,7 @@ api.add_resource(AnalyticsAPI, '/analytics', '/analytics/<int:id>')
 api.add_resource(RoleAPI, '/roles')
 api.add_resource(PostCommentAPI, '/posts/<int:id>/comment')
 api.add_resource(UserProfileAPI, '/profile/<int:id>')
+api.add_resource(UserAPI, '/user/<int:id>')
 
 
        
