@@ -1,6 +1,6 @@
-const Home = Vue.component("home", {
+const Userprofile = Vue.component("userprofile", {
     template:  `
-
+    
     <div class="container">
    <div class="row">
       <!-- left - start -->
@@ -14,7 +14,7 @@ const Home = Vue.component("home", {
             <div class="card-body mt-4" style="font-family: 'Poppins', sans-serif;">
                <p class="card-title header text-center">
                   <a @click=userprofile(user_id)
-                     style="color: #212529;">{{user}}</a>
+                     style="color: #212529;">{{posts[0]['username']}}</a>
                </p>
                <div class="text-center" style="margin-bottom: 10px; color: #5f5f5f;">
                   <span class="text-center" style="font-size: 13px;">Full Stack Application Developer</span>
@@ -100,20 +100,6 @@ const Home = Vue.component("home", {
       </div>
       <!-- middle - start -->
       <div class="col-8">
-         <div class="card">
-            <div class="card-body text-center">
-               <button type="button" data-bs-toggle="modal" data-bs-target="#staticBackdrop" class="mediatext btn btn-light">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" data-supported-dps="24x24" width="24"
-                     height="24" focusable="false" fill="#F5987E">
-                     <path
-                        d="M21 3v2H3V3zm-6 6h6V7h-6zm0 4h6v-2h-6zm0 4h6v-2h-6zM3 21h18v-2H3zM13 7H3v10h10z">
-                     </path>
-                  </svg>
-                  <span class="ml-1 mediatext">Write a Post</span>
-               </button>
-            </div>
-         </div>
-         <hr>
          <div v-for="post in posts" class="card mb-3" >
             <div class="card-header">
                <img src="https://media-exp1.licdn.com/dms/image/C4E03AQGiWpTUewQ76Q/profile-displayphoto-shrink_400_400/0/1613923672228?e=1669248000&v=beta&t=CwG-2a-EpNaLNhXLKJZc9wIGyrA587NjE2cM3p9KM48" class="postphoto">
@@ -135,6 +121,28 @@ const Home = Vue.component("home", {
             </div>
             <div>
                <div class="card-body">
+
+               <div v-if="!current_user" class="card-footer mt-1 text-center">
+                <span>
+                <button class="ref btn btn-light p-2">
+                <i class="fas fa-edit fa-md" style="font-size: 1.2rem">
+                <span class="ml-2 mediatext">
+                Edit
+                </span>
+                </i>
+                </button>
+
+                <button class="ref btn btn-light p-2 ml-4">
+                <i class="fas fa-trash fa-md" style="font-size: 1.2rem">
+                <span class="ml-2 mediatext">
+                Delete
+                </span>
+                </i>
+                </button>
+                </span>
+                </div>
+
+
                   <h5 class="card-title">{{post.title}}</h5>
                   <p class="card-text m-3 card-desc">
                      {{post.content}}
@@ -241,30 +249,6 @@ const Home = Vue.component("home", {
          </div>
       </div>
    </div>
-   <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-      <div class="modal-dialog">
-         <div class="modal-content">
-            <div class="modal-header">
-               <h1 class="modal-title fs-5" id="staticBackdropLabel">Add Category</h1>
-               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-               <div class="my-3">
-                  <label for="title">Post Title:</label>
-                  <input v-model="title"  type="text" id="title" class="form-control">
-               </div>
-               <div class="my-3">
-                  <label for="postContent">Post Content:</label>
-                  <textarea v-model="postContent" class="form-control" id="postContent" name="postContent" rows="5" required></textarea>
-               </div>
-            </div>
-            <div class="modal-footer">
-               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-               <button @click="addpost" type="button" class="btn btn-primary" data-bs-dismiss="modal">Submit</button>
-            </div>
-         </div>
-      </div>
-   </div>
    <div v-for="post in posts" :key="post.id">
       <div class="modal fade" :id="'editModal' + post.id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="'editModalLabel' + post.id" aria-hidden="true">
          <div class="modal-dialog">
@@ -288,252 +272,230 @@ const Home = Vue.component("home", {
       </div>
    </div>
 </div>
-
-    
-    `,
-
-    data() {
-      return {
-        posts : [],
-        title: null,
-        postContent: null,
-        error: null,
-        userRole: localStorage.getItem('role'),
-        token: localStorage.getItem('auth-token'),
-        user: localStorage.getItem('username'),
-        user_id: localStorage.getItem('id'),
-        postcomment: null,
-      };
-    },
-
-    methods: {
-
-        async getposts() {
-            try {
-            const res = await fetch('/posts', {
-                headers: {
-                    'Authentication-Token': this.token,
-                    'Authentication-Role': this.userRole,
-                },
-            }
-            
-            );
-            if (res.ok) {
-                const data = await res.json();
-                this.posts = data;
-                }
-                else {
-                    const errorData = await res.json();
-                    console.error(errorData);
-                }
-            } catch (error) {
-                console.error(error);
-            }
-            },
         
-            async addpost() {
+        
+        `,
+
+
+
+        data(){
+            return {
+                user_id : this.$route.params.id,
+                posts : [],
+                userRole: localStorage.getItem('role'),
+                token: localStorage.getItem('auth-token'),
+                current_username: localStorage.getItem('username'),
+                current_user_id: localStorage.getItem('id'),
+                postcomment: null,
+                current_user : true,
+            }
+        },
+
+        methods: {
+
+            async getposts() {
                 try {
-                    const currentDate = new Date();
-                    const day = String(currentDate.getDate()).padStart(2, '0');
-                    const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Months are zero-based
-                    const year = currentDate.getFullYear();
-                    const hours = String(currentDate.getHours() % 12 || 12).padStart(2, '0');
-                    const minutes = String(currentDate.getMinutes()).padStart(2, '0');
-                    const ampm = currentDate.getHours() >= 12 ? 'PM' : 'AM';
-            
-                    const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes} ${ampm}`;
-            
-                    const res = await fetch('/posts', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authentication-Token': this.token,
-                            'Authentication-Role': this.userRole,
-                        },
-                        body: JSON.stringify({
-                            title: this.title,
-                            content: this.postContent,
-                            user_id: this.user_id,
-                            created_at: formattedDateTime,
-                        }),
-                    });
-            
-                    if (res.ok) {
-                        this.getposts();
-                    } else {
-                        const errorData = await res.json();
-                        console.error(errorData);
-                    }
-                } catch (error) {
-                    console.error(error);
+                const res = await fetch('/profile/'+this.$route.params.id, {
+                    headers: {
+                        'Authentication-Token': this.token,
+                        'Authentication-Role': this.userRole,
+                    },
                 }
-            },
-
-            async addlike(post_id) {
-                try {
-
-                    const currentDate = new Date();
-                    const day = String(currentDate.getDate()).padStart(2, '0');
-                    const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Months are zero-based
-                    const year = currentDate.getFullYear();
-                    const hours = String(currentDate.getHours() % 12 || 12).padStart(2, '0');
-                    const minutes = String(currentDate.getMinutes()).padStart(2, '0');
-                    const ampm = currentDate.getHours() >= 12 ? 'PM' : 'AM';
-            
-                    const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes} ${ampm}`;
-
-
-
-                    const res = await fetch(`/analytics/${post_id}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authentication-Token': this.token,
-                            'Authentication-Role': this.userRole,
-                        },
-
-                        body: JSON.stringify({
-                            user_id: this.user_id,
-                            post_id: post_id,
-                            like: true,
-                            created_at: formattedDateTime,
-                        }),
-
-                    });
-            
-                    if (res.ok) {
-                        this.getposts();
-                    } else {
-                        const errorData = await res.json();
-                        console.error(errorData);
-                    }
-                } catch (error) {
-                    console.error(error);
-                }
-            },
-
-            async adddislike(post_id) {
-                try {
-
-                    const currentDate = new Date();
-                    const day = String(currentDate.getDate()).padStart(2, '0');
-                    const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Months are zero-based
-                    const year = currentDate.getFullYear();
-                    const hours = String(currentDate.getHours() % 12 || 12).padStart(2, '0');
-                    const minutes = String(currentDate.getMinutes()).padStart(2, '0');
-                    const ampm = currentDate.getHours() >= 12 ? 'PM' : 'AM';
-            
-                    const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes} ${ampm}`;
-
-                    const res = await fetch(`/analytics/${post_id}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authentication-Token': this.token,
-                            'Authentication-Role': this.userRole,
-                        },
-
-                        body: JSON.stringify({
-                            user_id: this.user_id,
-                            post_id: post_id,
-                            like: false,
-                            created_at: formattedDateTime,
-                        }),
-
-                    });
-
-                    if (res.ok) {
-                        this.getposts();
-                    } else {
-                        const errorData = await res.json();
-                        console.error(errorData);
-                    }
-                } catch (error) {
-
-                    console.error(error);
-                }
-            },
-
-            async addpostcomment(post) {
-                const post_id = post.id;
-                try {
-                    const currentDate = new Date();
-                    const day = String(currentDate.getDate()).padStart(2, '0');
-                    const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Months are zero-based
-                    const year = currentDate.getFullYear();
-                    const hours = String(currentDate.getHours() % 12 || 12).padStart(2, '0');
-                    const minutes = String(currentDate.getMinutes()).padStart(2, '0');
-                    const ampm = currentDate.getHours() >= 12 ? 'PM' : 'AM';
-            
-                    const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes} ${ampm}`;
-            
-                    const res = await fetch(`/posts/${post_id}/comment`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authentication-Token': this.token,
-                            'Authentication-Role': this.userRole,
-                        },
-                        body: JSON.stringify({
-                            comment: this.postcomment,
-                            user_id: this.user_id,
-                            created_at: formattedDateTime,
-                        }),
-                    });
-            
-                    if (res.ok) {
-                        this.getposts();
-                    } else {
-                        const errorData = await res.json();
-                        console.error(errorData);
-                    }
-                } catch (error) {
-                    console.error(error);
-                }
-            },
-
-
-
-
-            countLikes(post) {
-                if (post.analytics && post.analytics.length > 0) {
-                  return post.analytics.filter(analytics => analytics.like).length;
-                } else {
-                  return 0;
-                }
-              },
-
-              countcomments(post) {
-                if (post.analytics && post.analytics.length > 0) {
-                  return post.analytics.filter(analytics => analytics.comment).length;
-                } else {
-                  return 0;
-                }
-              },
-
-              hasComments(post) {
-                return post.analytics && post.analytics.some(analytics => analytics.comment);
-              },
-
-                userprofile(user_id) {
-                    this.$router.push("/profile/" + user_id);
-                },
-
                 
+                );
+                if (res.ok) {
+                    const data = await res.json();
+                    this.posts = data;
+                    }
+                    else {
+                        const errorData = await res.json();
+                        console.error(errorData);
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
+                },
+    
+                async addlike(post_id) {
+                    try {
+    
+                        const currentDate = new Date();
+                        const day = String(currentDate.getDate()).padStart(2, '0');
+                        const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+                        const year = currentDate.getFullYear();
+                        const hours = String(currentDate.getHours() % 12 || 12).padStart(2, '0');
+                        const minutes = String(currentDate.getMinutes()).padStart(2, '0');
+                        const ampm = currentDate.getHours() >= 12 ? 'PM' : 'AM';
+                
+                        const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes} ${ampm}`;
+    
+    
+    
+                        const res = await fetch(`/analytics/${post_id}`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authentication-Token': this.token,
+                                'Authentication-Role': this.userRole,
+                            },
+    
+                            body: JSON.stringify({
+                                user_id: this.user_id,
+                                post_id: post_id,
+                                like: true,
+                                created_at: formattedDateTime,
+                            }),
+    
+                        });
+                
+                        if (res.ok) {
+                            this.getposts();
+                        } else {
+                            const errorData = await res.json();
+                            console.error(errorData);
+                        }
+                    } catch (error) {
+                        console.error(error);
+                    }
+                },
+    
+                async adddislike(post_id) {
+                    try {
+    
+                        const currentDate = new Date();
+                        const day = String(currentDate.getDate()).padStart(2, '0');
+                        const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+                        const year = currentDate.getFullYear();
+                        const hours = String(currentDate.getHours() % 12 || 12).padStart(2, '0');
+                        const minutes = String(currentDate.getMinutes()).padStart(2, '0');
+                        const ampm = currentDate.getHours() >= 12 ? 'PM' : 'AM';
+                
+                        const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes} ${ampm}`;
+    
+                        const res = await fetch(`/analytics/${post_id}`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authentication-Token': this.token,
+                                'Authentication-Role': this.userRole,
+                            },
+    
+                            body: JSON.stringify({
+                                user_id: this.user_id,
+                                post_id: post_id,
+                                like: false,
+                                created_at: formattedDateTime,
+                            }),
+    
+                        });
+    
+                        if (res.ok) {
+                            this.getposts();
+                        } else {
+                            const errorData = await res.json();
+                            console.error(errorData);
+                        }
+                    } catch (error) {
+    
+                        console.error(error);
+                    }
+                },
+    
+                async addpostcomment(post) {
+                    const post_id = post.id;
+                    try {
+                        const currentDate = new Date();
+                        const day = String(currentDate.getDate()).padStart(2, '0');
+                        const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+                        const year = currentDate.getFullYear();
+                        const hours = String(currentDate.getHours() % 12 || 12).padStart(2, '0');
+                        const minutes = String(currentDate.getMinutes()).padStart(2, '0');
+                        const ampm = currentDate.getHours() >= 12 ? 'PM' : 'AM';
+                
+                        const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes} ${ampm}`;
+                
+                        const res = await fetch(`/posts/${post_id}/comment`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authentication-Token': this.token,
+                                'Authentication-Role': this.userRole,
+                            },
+                            body: JSON.stringify({
+                                comment: this.postcomment,
+                                user_id: this.user_id,
+                                created_at: formattedDateTime,
+                            }),
+                        });
+                
+                        if (res.ok) {
+                            this.getposts();
+                        } else {
+                            const errorData = await res.json();
+                            console.error(errorData);
+                        }
+                    } catch (error) {
+                        console.error(error);
+                    }
+                },
+    
+    
+    
+    
+                countLikes(post) {
+                    if (post.analytics && post.analytics.length > 0) {
+                      return post.analytics.filter(analytics => analytics.like).length;
+                    } else {
+                      return 0;
+                    }
+                  },
+    
+                  countcomments(post) {
+                    if (post.analytics && post.analytics.length > 0) {
+                      return post.analytics.filter(analytics => analytics.comment).length;
+                    } else {
+                      return 0;
+                    }
+                  },
+    
+                  hasComments(post) {
+                    return post.analytics && post.analytics.some(analytics => analytics.comment);
+                  },
+    
+                    userprofile(user_id) {
+                        this.$router.push("/profile/" + user_id);
+                    },
+    
+                    
+    
+    
+    
+    
+    
+    
+                
+        },
+    
+        mounted() {
+            document.title = "Home";
+            this.getposts();
+
+            if (this.current_user_id == this.user_id) {
+                this.current_user = false;
+            }
+
+        },
+    
 
 
 
 
 
 
-            
-    },
-
-    mounted() {
-        document.title = "Home";
-        this.getposts();
-    },
-
-  });
   
-  export default Home;
+  });
+
+
+
+  
+  export default Userprofile;   

@@ -112,41 +112,80 @@ update_analytics_parser.add_argument('user_id')
 
 
 #==============================API========================================
-class UserAPI(Resource):
-    def get(self):
-        data = []
-        users = User.query.all()
-        if not users:
-            raise NotFoundError(status_code=404)
+# class UserAPI(Resource):
+#     def get(self):
+#         data = []
+#         users = User.query.all()
+#         if not users:
+#             raise NotFoundError(status_code=404)
         
-        for user in users:
-            creator_found = False  # Flag to check if "Creator" role is found
-            posts = []
+#         for user in users:
+#             creator_found = False  # Flag to check if "Creator" role is found
+#             posts = []
 
-            for role in user.roles:
-                if role.name == "Creator":
-                    creator_found = True
-                    for post in user.posts:
-                        posts.append({
-                            "id": post.id,
-                            "title": post.title,
-                            "content": post.content,
-                            "user_id": post.user_id,
-                            "created_at": post.created_at,
-                            "updated_at": post.updated_at
-                        })
+#             for role in user.roles:
+#                 if role.name == "Creator":
+#                     creator_found = True
+#                     for post in user.posts:
+#                         posts.append({
+#                             "id": post.id,
+#                             "title": post.title,
+#                             "content": post.content,
+#                             "user_id": post.user_id,
+#                             "created_at": post.created_at,
+#                             "updated_at": post.updated_at
+#                         })
 
-            if creator_found:
-                data.append({
-                    "id": user.id,
-                    "username": user.username,
-                    "email": user.email,
-                    "active": user.active,
-                    "posts": posts
+#             if creator_found:
+#                 data.append({
+#                     "id": user.id,
+#                     "username": user.username,
+#                     "email": user.email,
+#                     "active": user.active,
+#                     "posts": posts
+#                 })
+
+#         if not data:
+#             return "No Creators Found", 404
+
+#         return data
+
+
+class UserProfileAPI(Resource):
+    def get(self, id):
+        data = []
+        user = User.query.filter_by(id=id).first()
+        if user is None:
+            raise NotFoundError(status_code=404)
+        posts = Post.query.filter_by(user_id=id).order_by(Post.id.desc()).all()
+        if not posts:
+            return data
+        for post in posts:
+            analytics = []
+            for analytic in post.analytics:
+                user = User.query.filter_by(id=analytic.user_id).first()
+                analytics.append({
+                    "id": analytic.id,
+                    "post_id": analytic.post_id,
+                    "like": analytic.like,
+                    "comment": analytic.comment,
+                    "shares": analytic.shares,
+                    "created_at": analytic.created_at,
+                    "updated_at": analytic.updated_at,
+                    "user_id": analytic.user_id,
+                    "username": user.username
                 })
-
-        if not data:
-            return "No Creators Found", 404
+            
+            data.append({
+                "id": post.id,
+                "title": post.title,
+                "content": post.content,
+                "user_id": post.user_id,
+                "created_at": post.created_at,
+                "updated_at": post.updated_at,
+                "analytics": analytics,
+                "username": post.author.username
+            })
 
         return data
 
@@ -398,11 +437,11 @@ class RoleAPI(Resource):
 
 
 
-api.add_resource(UserAPI, '/users')
 api.add_resource(PostAPI, '/posts', '/posts/<int:id>')
 api.add_resource(AnalyticsAPI, '/analytics', '/analytics/<int:id>')
 api.add_resource(RoleAPI, '/roles')
 api.add_resource(PostCommentAPI, '/posts/<int:id>/comment')
+api.add_resource(UserProfileAPI, '/profile/<int:id>')
 
 
        

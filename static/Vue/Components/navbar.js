@@ -4,7 +4,7 @@ const Navbar = Vue.component('Navbar', {
 
     <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top mb-2 border-bottom">
       <div class="container">
-        <a class="navbar-brand" href="#">
+        <a class="navbar-brand" href="/">
           <i class="fab fa-linkedin fa-lg" style="color: #0a66c2; font-size: 2.8rem"></i>
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
