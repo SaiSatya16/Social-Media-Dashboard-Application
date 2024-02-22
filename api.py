@@ -9,6 +9,7 @@ import os
 from functools import wraps
 from flask import abort
 from flask_security import roles_accepted
+from sqlalchemy.exc import IntegrityError
 
 api = Api()
 
@@ -49,8 +50,7 @@ post_fields = {
 analytics_fields = {
     'id': fields.Integer,
     'post_id': fields.Integer,
-    'likes': fields.Integer,
-    'dislikes': fields.Integer,
+    'like': fields.Integer,
     'comment': fields.String,
     'shares': fields.Integer,
     'created_at': fields.String,
@@ -76,6 +76,22 @@ create_analytics_parser.add_argument('shares')
 create_analytics_parser.add_argument('created_at')
 create_analytics_parser.add_argument('updated_at')
 create_analytics_parser.add_argument('user_id')
+
+like_parser = reqparse.RequestParser()
+like_parser.add_argument('like')
+like_parser.add_argument('user_id')
+like_parser.add_argument('created_at')
+
+comment_parser = reqparse.RequestParser()
+comment_parser.add_argument('comment')
+comment_parser.add_argument('user_id')
+comment_parser.add_argument('created_at')
+
+
+
+
+
+
 #====================Update request pares=======================================
 update_post_parser = reqparse.RequestParser()
 update_post_parser.add_argument('title')
@@ -141,9 +157,8 @@ class PostAPI(Resource):
     def get(self):
         data = []
 
-        #query all posts order by created_at
-        posts = Post.query.order_by(Post.created_at.desc()).all()
-
+        #query all posts order by id in descending order
+        posts = Post.query.order_by(Post.id.desc()).all()
         if not posts:
             # Return an empty list if there are no posts
             return data
@@ -151,16 +166,17 @@ class PostAPI(Resource):
         for post in posts:
             analytics = []
             for analytic in post.analytics:
+                user = User.query.filter_by(id=analytic.user_id).first()
                 analytics.append({
                     "id": analytic.id,
                     "post_id": analytic.post_id,
-                    "likes": analytic.likes,
-                    "dislikes": analytic.dislikes,
+                    "like": analytic.like,
                     "comment": analytic.comment,
                     "shares": analytic.shares,
                     "created_at": analytic.created_at,
                     "updated_at": analytic.updated_at,
-                    "user_id": analytic.user_id
+                    "user_id": analytic.user_id,
+                    "username": user.username
                 })
             
             
@@ -247,45 +263,112 @@ class AnalyticsAPI(Resource):
             data.append({"id":analytic.id,"post_id":analytic.post_id,"likes":analytic.likes,"dislikes":analytic.dislikes,"comment":analytic.comment,"shares":analytic.shares,"created_at":analytic.created_at,"updated_at":analytic.updated_at,"user_id":analytic.user_id})
         return data
 
+
+
     @marshal_with(analytics_fields)
     def post(self, id):
-        args = create_analytics_parser.parse_args()
+        args = like_parser.parse_args()
         post_id = id
         like = args.get('like', None)
-        comment = args.get('comment', None)
-        shares = args.get('shares', None)
+        if like is not None:
+            like = like.lower() == 'true'
         created_at = args.get('created_at', None)
         updated_at = args.get('updated_at', None)
         user_id = args.get('user_id', None)
 
-        
-        analytic = Analytics(post_id=post_id, like=like, comment=comment, shares=shares, created_at=created_at, updated_at=updated_at, user_id=user_id)
-        db.session.add(analytic)
-        db.session.commit()
-        a = Analytics.query.filter_by(post_id=post_id, like=like, comment=comment, shares=shares, created_at=created_at, updated_at=updated_at, user_id=user_id).first()
-        aid = a.id
-        asso = post_analytics_association(post_id=post_id, analytics_id=aid)
-        db.session.add(asso)
-        db.session.commit()
-        return analytic, 201
+        # Check if a record with the given user_id and post_id already exists
+        existing_analytic = Analytics.query.filter_by(post_id=post_id, user_id=user_id).first()
+
+        if existing_analytic:
+            # Update the existing record
+            existing_analytic.like = like
+            existing_analytic.created_at = created_at
+            existing_analytic.updated_at = updated_at
+
+            db.session.commit()
+
+            # Return the updated analytic
+            return existing_analytic, 200
+        else:
+            # Create a new record
+            analytic = Analytics(post_id=post_id, like=like, created_at=created_at, updated_at=updated_at, user_id=user_id)
+
+            try:
+                db.session.add(analytic)
+                db.session.commit()
+
+                # Add association with post
+                asso = post_analytics_association(post_id=post_id, analytics_id=analytic.id)
+                db.session.add(asso)
+                db.session.commit()
+
+                return analytic, 201
+            except IntegrityError:
+                db.session.rollback()
+                return {"message": "Integrity error occurred"}, 500
+
     
+    # @marshal_with(analytics_fields)
+    # def put(self, id):
+    #     args = update_analytics_parser.parse_args()
+    #     post_id = id
+    #     like = args.get('like', None)
+    #     comment = args.get('comment', None)
+    #     shares = args.get('shares', None)
+    #     created_at = args.get('created_at', None)
+    #     updated_at = args.get('updated_at', None)
+    #     user_id = args.get('user_id', None)
+
+    #     analytic = Analytics.query.filter_by(post_id=post_id).first()
+    #     if analytic is None:
+    #         raise NotFoundError(status_code=404)
+    #     Analytics.query.filter_by(post_id=post_id).update({"like":like, "comment":comment, "shares":shares, "created_at":created_at, "updated_at":updated_at, "user_id":user_id})
+    #     db.session.commit()
+    #     return analytic, 201
+            
+
+
+class PostCommentAPI(Resource):
+
     @marshal_with(analytics_fields)
-    def put(self, id):
-        args = update_analytics_parser.parse_args()
+    def post(self, id):
+        args = comment_parser.parse_args()
         post_id = id
-        like = args.get('like', None)
         comment = args.get('comment', None)
-        shares = args.get('shares', None)
         created_at = args.get('created_at', None)
-        updated_at = args.get('updated_at', None)
         user_id = args.get('user_id', None)
 
-        analytic = Analytics.query.filter_by(post_id=post_id).first()
-        if analytic is None:
-            raise NotFoundError(status_code=404)
-        Analytics.query.filter_by(post_id=post_id).update({"like":like, "comment":comment, "shares":shares, "created_at":created_at, "updated_at":updated_at, "user_id":user_id})
-        db.session.commit()
-        return analytic, 201
+        # Check if a record with the given user_id and post_id already exists
+        existing_analytic = Analytics.query.filter_by(post_id=post_id, user_id=user_id).first()
+
+        if existing_analytic:
+            # Update the existing record
+            existing_analytic.comment = comment
+            existing_analytic.created_at = created_at
+            
+
+            db.session.commit()
+
+            # Return the updated analytic
+            return existing_analytic, 200
+        else:
+            # Create a new record
+            analytic = Analytics(post_id=post_id, comment=comment, created_at=created_at, user_id=user_id)
+
+            try:
+                db.session.add(analytic)
+                db.session.commit()
+
+                # Add association with post
+                asso = post_analytics_association(post_id=post_id, analytics_id=analytic.id)
+                db.session.add(asso)
+                db.session.commit()
+
+                return analytic, 201
+            except IntegrityError:
+                db.session.rollback()
+                return {"message": "Integrity error occurred"}, 500
+    
     
 class RoleAPI(Resource):
     def get(self):
@@ -319,6 +402,7 @@ api.add_resource(UserAPI, '/users')
 api.add_resource(PostAPI, '/posts', '/posts/<int:id>')
 api.add_resource(AnalyticsAPI, '/analytics', '/analytics/<int:id>')
 api.add_resource(RoleAPI, '/roles')
+api.add_resource(PostCommentAPI, '/posts/<int:id>/comment')
 
 
        
