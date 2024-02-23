@@ -296,6 +296,10 @@ const Userprofile = Vue.component("userprofile", {
                      <label for="postContent">Edit Content:</label>
                      <textarea v-model="post.content" class="form-control" id="postcontent" name="postcontent" rows="5" required></textarea>
                   </div>
+                  <div class="my-3">
+                    <label for="categoryImage">Edit Post</label>
+                    <input type="file" @change="handleImageSelect">
+                    </div>
                </div>
                <div class="modal-footer">
                   <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -351,10 +355,16 @@ const Userprofile = Vue.component("userprofile", {
                 postcomment: null,
                 current_user : true,
                 user : [],
+                selectedImage: null,
             }
         },
 
         methods: {
+
+            handleImageSelect(event) {
+                this.selectedImage = event.target.files[0];
+              },
+       
 
             async getuser(id) {
                 try {
@@ -449,6 +459,9 @@ const Userprofile = Vue.component("userprofile", {
                         });
 
                         if (res.ok) {
+                            if (this.selectedImage) {
+                                await this.handleImageUpload(post.id);
+                             }
                             this.getposts();
                         } else {
                             const errorData = await res.json();
@@ -458,6 +471,33 @@ const Userprofile = Vue.component("userprofile", {
                         console.error(error);
                     }
                 },
+
+                async handleImageUpload(post_id) {
+                    try {
+                      const formData = new FormData();
+                      formData.append('image', this.selectedImage);
+                
+                      const res = await fetch('/posts/' + post_id + '/image', {
+                        method: 'POST',
+                        headers: {
+                          'Authentication-Token': this.token,
+                          'Authentication-Role': this.userRole,
+                        },
+                        body: formData,
+                      });
+                
+                      if (res.ok) {
+                        const data = await res.json();
+                        console.log(data); // Handle success response
+                      } else {
+                        const data = await res.json();
+                        console.error(data);
+                        // Handle error response related to image upload
+                      }
+                    } catch (error) {
+                      console.error(error); // Handle fetch error
+                    }
+                  },
 
 
 

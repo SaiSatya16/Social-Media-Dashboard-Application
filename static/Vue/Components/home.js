@@ -259,7 +259,7 @@ const Home = Vue.component("home", {
                </div>
 
                <div class="my-3">
-               <label for="categoryImage">Upload Category Image</label>
+               <label for="categoryImage">Upload Post Image</label>
                <input type="file" @change="handleImageSelect">
                </div>
 
