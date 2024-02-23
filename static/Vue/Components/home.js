@@ -324,6 +324,7 @@ const Home = Vue.component("home", {
         postcomment: null,
         user : [],
         selectedImage: null,
+        socket: null,
       };
     },
 
@@ -603,6 +604,30 @@ const Home = Vue.component("home", {
                       console.error(error);
                   }
                   },
+               
+                  setupWebSocket() {
+                     var socket = io('http://127.0.0.1:5000/Posts', {
+                       path: '/socket.io',
+                       // Other configurations...
+                     }); // Assuming SocketIO is available as 'io'
+                   
+                     socket.on('connect', () => {
+                       console.log('WebSocket connected');
+                     });
+                   
+                     socket.on('newPostEntry', () => {
+                       // Trigger a method to update orders or perform actions on new entries
+                       this.getposts();   
+                     });
+                   
+                     socket.on('disconnect', () => {
+                       console.log('WebSocket disconnected');
+                     });
+                   
+                     socket.on('error', error => {
+                       console.error('WebSocket error:', error);
+                     });
+                   },
 
                 
 
@@ -614,10 +639,13 @@ const Home = Vue.component("home", {
             
     },
 
+
+
     mounted() {
         document.title = "Home";
         this.getposts();
         this.getuser(this.user_id);
+        this.setupWebSocket();
     },
 
   });

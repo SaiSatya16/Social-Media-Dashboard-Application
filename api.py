@@ -288,30 +288,25 @@ class PostAPI(Resource):
         return data
             
 
-    @marshal_with(post_fields)
-    @roles_required('Creator')
-    @auth_required('token')
-    def post(self):
-        args = create_post_parser.parse_args()
-        title = args.get('title', None)
-        content = args.get('content', None)
-        user_id =   args.get('user_id', None)
-        created_at = args.get('created_at', None)
-        updated_at = args.get('updated_at', None)
-        if title is None:
-            raise BusinessValidationError(status_code=400, error_code="BE1001", error_message="Title is required")
-        if content is None:
-            raise BusinessValidationError(status_code=400, error_code="BE1002", error_message="Content is required")
+    # @marshal_with(post_fields)
+    # @roles_required('Creator')
+    # @auth_required('token')
+    # def post(self):
+    #     args = create_post_parser.parse_args()
+    #     title = args.get('title', None)
+    #     content = args.get('content', None)
+    #     user_id =   args.get('user_id', None)
+    #     created_at = args.get('created_at', None)
+    #     updated_at = args.get('updated_at', None)
+    #     if title is None:
+    #         raise BusinessValidationError(status_code=400, error_code="BE1001", error_message="Title is required")
+    #     if content is None:
+    #         raise BusinessValidationError(status_code=400, error_code="BE1002", error_message="Content is required")
         
-        post = Post(title=title, content=content, user_id=user_id, created_at=created_at, updated_at=updated_at)
-        db.session.add(post)
-        db.session.commit()
-        # p = Post.query.filter_by(title=title, content=content, user_id=user_id, created_at=created_at, updated_at=updated_at).first()
-        # pid = p.id
-        # asso = user_post_association(user_id=user_id, post_id=pid)
-        # db.session.add(asso)
-        # db.session.commit()
-        return post, 201
+    #     post = Post(title=title, content=content, user_id=user_id, created_at=created_at, updated_at=updated_at)
+    #     db.session.add(post)
+    #     db.session.commit()
+    #     return post, 201
     
     @marshal_with(post_fields)
     @roles_required('Creator')
@@ -467,25 +462,6 @@ class AnalyticsAPI(Resource):
             except IntegrityError:
                 db.session.rollback()
                 return {"message": "Integrity error occurred"}, 500
-
-    
-    # @marshal_with(analytics_fields)
-    # def put(self, id):
-    #     args = update_analytics_parser.parse_args()
-    #     post_id = id
-    #     like = args.get('like', None)
-    #     comment = args.get('comment', None)
-    #     shares = args.get('shares', None)
-    #     created_at = args.get('created_at', None)
-    #     updated_at = args.get('updated_at', None)
-    #     user_id = args.get('user_id', None)
-
-    #     analytic = Analytics.query.filter_by(post_id=post_id).first()
-    #     if analytic is None:
-    #         raise NotFoundError(status_code=404)
-    #     Analytics.query.filter_by(post_id=post_id).update({"like":like, "comment":comment, "shares":shares, "created_at":created_at, "updated_at":updated_at, "user_id":user_id})
-    #     db.session.commit()
-    #     return analytic, 201
             
 
 

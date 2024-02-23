@@ -11,13 +11,16 @@ from flask_restful import marshal, fields
 from sec import datastore
 from PIL import Image
 from sqlalchemy.orm.exc import NoResultFound
+from flask_socketio import SocketIO, emit
 
 
 #==============================configuration===============================
 app = Flask(__name__)
+socketio = SocketIO(app)
 app.config.from_object(DevelopmentConfig)
 api.init_app(app)
 db.init_app(app)
+CORS(app, resources={r"/socket.io/*": {"origins": "*"}})
 app.security = Security(app, datastore)
 app.app_context().push()
 
@@ -70,5 +73,44 @@ def user_registration():
         db.session.commit()
         return jsonify({"message": "User Created"}), 201
 
+
+post_fields = {
+    'id': fields.Integer,
+    'title': fields.String,
+    'content': fields.String,
+    'user_id': fields.Integer,
+    'created_at': fields.String,
+    'updated_at': fields.String,
+    'image': fields.String
+}
+
+@app.post('/posts')
+def create_post():
+    data = request.get_json()
+    title = data.get('title', None)
+    content = data.get('content', None)
+    user_id = data.get('user_id', None)
+    created_at = data.get('created_at', None)
+    updated_at = data.get('updated_at', None)
+    if not title:
+        return jsonify({"message": "title not provided"}), 400
+    if not content:
+        return jsonify({"message": "content not provided"}), 400
+    post = Post(title=title, content=content, user_id=user_id, created_at=created_at, updated_at=updated_at)
+    db.session.add(post)
+    db.session.commit()
+    socketio.emit('newPostEntry', namespace='/Posts')
+
+    return jsonify({"message": "Post Created"}), 201
+
+
+@socketio.on('connect', namespace='/Posts')
+def test_connect():
+    print('Client connected')
+
+@socketio.on('disconnect', namespace='/Posts')
+def test_disconnect():
+    print('Client disconnected')
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    socketio.run(app, debug=True)
