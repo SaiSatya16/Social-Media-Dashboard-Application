@@ -117,7 +117,7 @@ const Userprofile = Vue.component("userprofile", {
                   </span>
                   </span>
                   <span class="profile-desc">
-                  I teach CS50
+                  {{user.description}}
                   </span>
                   <span class="profile-desc"> {{post.created_at}}
                   <i class="fas fa-globe-americas fa-sm">
@@ -155,8 +155,8 @@ const Userprofile = Vue.component("userprofile", {
                      {{post.content}}
                   </p>
                </div>
-               <div>
-                  <img src="https://pbs.twimg.com/media/Em2_xBbXUAEVDx1.jpg" class="card-img-top mb-1"
+               <div v-if="post.image">
+                  <img :src="post.image" class="card-img-top mb-1"
                      alt="..." />
                </div>
                <div class="row">
@@ -316,7 +316,7 @@ const Userprofile = Vue.component("userprofile", {
                <div class="modal-body">
                <div class="my-3">
                 <label for="title">Edit Username</label>
-                <input v-model="user.username" type="text" id="username" class="form-control">
+                <input v-model="user.name" type="text" id="username" class="form-control">
                 </div>
                   <div class="my-3">
                      <label for="postContent">Edit Description:</label>
@@ -588,9 +588,8 @@ const Userprofile = Vue.component("userprofile", {
 
                 async deletepost(post) {
                     try {
-
                         const do_delete = confirm("Are you sure you want to delete this Post?");
-                        if (!do_delete) {
+                        if (do_delete) { // Only proceed if the user confirms deletion
                             const res = await fetch(`/posts/${post.id}`, {
                                 method: 'DELETE',
                                 headers: {
@@ -598,18 +597,19 @@ const Userprofile = Vue.component("userprofile", {
                                     'Authentication-Role': this.userRole,
                                 },
                             });
+                
                             if (res.ok) {
                                 this.getposts();
                             } else {
                                 const errorData = await res.json();
                                 console.error(errorData);
                             }
-                        } 
+                        }
+                    } catch (error) {
+                        console.error(error);
+                    }
                 }
-                catch (error) {
-                    console.error(error);
-                }
-            },
+                ,
     
     
     

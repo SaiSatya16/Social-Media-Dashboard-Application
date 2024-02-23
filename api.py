@@ -176,7 +176,8 @@ class UserProfileAPI(Resource):
                 "created_at": post.created_at,
                 "updated_at": post.updated_at,
                 "analytics": analytics,
-                "username": post.author.username
+                "username": post.author.username,
+                "image": post.image
             })
 
         return data
@@ -270,6 +271,24 @@ class PostAPI(Resource):
     
     @marshal_with(post_fields)
     def delete(self, id):
+        ALLOWED_IMAGE_FORMATS = ['jpg', 'jpeg', 'png', 'gif']  # Add more formats as needed
+        deleted_formats = []
+        for img_format in ALLOWED_IMAGE_FORMATS:
+            img_path = f'static/uploads/{id}_post_image.{img_format}'
+            if os.path.exists(img_path):
+                os.remove(img_path)
+                deleted_formats.append(img_format)
+        if deleted_formats:
+            post = Post.query.get(id)
+            if post:
+                db.session.query(post_analytics_association).filter_by(post_id=id).delete()
+                db.session.query(Analytics).filter_by(post_id=id).delete()
+                db.session.delete(post)
+                db.session.commit()
+
+                return "Post deleted successfully", 204
+            else:
+                raise NotFoundError(status_code=404)
         post = Post.query.get(id)
         if post:
             db.session.query(post_analytics_association).filter_by(post_id=id).delete()
@@ -280,6 +299,7 @@ class PostAPI(Resource):
             return "Post deleted successfully", 204
         else:
             raise NotFoundError(status_code=404)
+        
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 

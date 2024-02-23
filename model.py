@@ -22,6 +22,7 @@ class User(db.Model, UserMixin):
     roles = db.relationship('Role', secondary='roles_users',
                             backref=db.backref('users', lazy='dynamic'))
     posts = db.relationship('Post', backref='author', lazy='dynamic')
+    image = db.Column(db.String(100))
 
 
 

@@ -124,7 +124,7 @@ const Home = Vue.component("home", {
                   </span>
                   </span>
                   <span class="profile-desc">
-                  I teach CS50
+                  {{user.description}}
                   </span>
                   <span class="profile-desc"> {{post.created_at}}
                   <i class="fas fa-globe-americas fa-sm">
@@ -140,7 +140,7 @@ const Home = Vue.component("home", {
                      {{post.content}}
                   </p>
                </div>
-               <div>
+               <div  v-if="post.image">
                   <img :src="post.image" class="card-img-top mb-1"
                      alt="..." />
                </div>
