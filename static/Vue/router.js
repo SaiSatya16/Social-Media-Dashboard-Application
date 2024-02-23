@@ -3,6 +3,9 @@ import Home from "./Components/home.js";
 import Registration from "./Components/registration.js";
 import Login from "./Components/login.js";
 import Userprofile from "./Components/userprofile.js";
+import Community from "./Components/community.js";
+import About from "./Components/about.js";
+import Notifications from "./Components/notification.js";
 
 const routes = [
     {
@@ -25,7 +28,23 @@ const routes = [
         path: "/profile/:id",
         component: Userprofile,
         name: "Userprofile"
+    },
+    {
+        path: "/community",
+        component: Community,
+        name: "Community"
+    },
+    {
+        path: "/about",
+        component: About,
+        name: "About"
+    },
+    {
+        path: "/notifications",
+        component: Notifications,
+        name: "Notifications"
     }
+
 ];
 
 

@@ -46,8 +46,11 @@ const Navbar = Vue.component('Navbar', {
         <!-- Me -->
         <li v-if="['Admin', 'Creator'].includes(role)" class="nav-item mr-3">
           <a class="nav-link" href="#" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
-            <img class="rounded-circle ml-2" src="https://media-exp1.licdn.com/dms/image/C4D03AQFzRzfBHzBpbA/profile-displayphoto-shrink_100_100/0/1661208519486?e=1669248000&v=beta&t=F_N3_KlkhDP4RbePX7fUwfN9TtrmwSAdb-1OW3VvUA4" style="width: 25px; height: 25px;" />
+            <i class="fas fa-user fa-lg text-center"></i>
+
             <div  class="menutext mt-2" @click=userprofile(user_id) >Me</div>
+
+          
           </a>
         </li>
         

@@ -222,6 +222,19 @@ class UserProfileAPI(Resource):
                 return {'error': 'User not found'}, 404
         else:
             return {'error': 'Invalid file format'}, 400
+        
+class AlluserAPI(Resource):
+    @roles_required('Creator')
+    @auth_required('token')
+    def get(self):
+        data = []
+        #query only role of creator
+        users = User.query.join(RolesUsers).join(Role).filter(Role.name == 'Creator').all()
+        if not users:
+            raise NotFoundError(status_code=404)
+        for user in users:
+            data.append({"id":user.id,"username":user.username,"email":user.email,"active":user.active,"description":user.description,"image":user.image})
+        return data
 
 
 
@@ -557,6 +570,7 @@ api.add_resource(PostCommentAPI, '/posts/<int:id>/comment')
 api.add_resource(UserProfileAPI, '/profile/<int:id>',  '/profile/<int:id>/image')
 api.add_resource(UserAPI, '/user/<int:id>')
 api.add_resource(PostimageAPI, '/posts/<int:id>/image')
+api.add_resource(AlluserAPI, '/users')
 
        
 
