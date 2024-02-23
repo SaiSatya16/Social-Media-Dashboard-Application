@@ -118,14 +118,17 @@ update_analytics_parser.add_argument('user_id')
 
 #==============================API========================================
 class UserAPI(Resource):
-
+    
+    @roles_required('Creator')
+    @auth_required('token')
     def get(self, id):
         user = User.query.filter_by(id=id).first()
         if user is None:
             raise NotFoundError(status_code=404)
-        return {"id": user.id, "name": user.username, "description": user.desscription}
+        return {"id": user.id, "name": user.username, "description": user.description, "image": user.image}
 
-
+    @roles_required('Creator')
+    @auth_required('token')
     def put(self, id):
         args = update_user_parser.parse_args()
         username = args.get('username', None)
@@ -138,12 +141,14 @@ class UserAPI(Resource):
         user = User.query.filter_by(id=id).first()
         if user is None:
             raise NotFoundError(status_code=404)
-        User.query.filter_by(id=id).update({"username":username, "desscription":description})
+        User.query.filter_by(id=id).update({"username":username, "description":description})
         db.session.commit()
-        return {"id": user.id, "username": user.username, "description": user.desscription}, 201
+        return {"id": user.id, "username": user.username, "description": user.description}, 201
     
 
 class UserProfileAPI(Resource):
+    @roles_required('Creator')
+    @auth_required('token')
     def get(self, id):
         data = []
         user = User.query.filter_by(id=id).first()
@@ -179,16 +184,51 @@ class UserProfileAPI(Resource):
                 "analytics": analytics,
                 "username": post.author.username,
                 "image": post.image,
-                "user_description": post.author.desscription
+                "user_description": post.author.description,
+                "user_image": post.author.image
 
             })
 
         return data
 
+    @roles_required('Creator')
+    @auth_required('token')    
+    def post(self, id):
+        if 'image' not in request.files:
+            return {'error': 'No image uploaded'}, 400
+
+        image_file = request.files['image']
+        if image_file.filename == '':
+            return {'error': 'No selected file'}, 400
+
+        if image_file and allowed_file(image_file.filename):
+            # Ensure the path exists
+            upload_path = f'static/uploads/'
+            if not os.path.exists(upload_path):
+                os.makedirs(upload_path)
+
+            image = Image.open(image_file)
+            # Save the image with the category ID as the name and in the correct format
+            image.save(f'{upload_path}/{id}_user_image.{image.format.lower()}')
+            image_path = f'/static/uploads/{id}_user_image.{image.format.lower()}'
+
+            # Update the database with the image path
+            user = User.query.filter_by(id=id).first()
+            if user:
+                user.image = image_path
+                db.session.commit()
+                return {'message': 'Image uploaded successfully'}, 200
+            else:
+                return {'error': 'User not found'}, 404
+        else:
+            return {'error': 'Invalid file format'}, 400
+
 
 
 
 class PostAPI(Resource):
+    @roles_required('Creator')
+    @auth_required('token')
     def get(self):
         data = []
 
@@ -227,7 +267,8 @@ class PostAPI(Resource):
                 "analytics": analytics,
                 "username": post.author.username,
                 "image": post.image,
-                "user_description": post.author.desscription
+                "user_description": post.author.description,
+                "user_image": post.author.image
 
             })
 
@@ -235,6 +276,8 @@ class PostAPI(Resource):
             
 
     @marshal_with(post_fields)
+    @roles_required('Creator')
+    @auth_required('token')
     def post(self):
         args = create_post_parser.parse_args()
         title = args.get('title', None)
@@ -258,6 +301,8 @@ class PostAPI(Resource):
         return post, 201
     
     @marshal_with(post_fields)
+    @roles_required('Creator')
+    @auth_required('token')
     def put(self, id):
         args = update_post_parser.parse_args()
         title = args.get('title', None)
@@ -275,6 +320,8 @@ class PostAPI(Resource):
         return post, 201
     
     @marshal_with(post_fields)
+    @roles_required('Creator')
+    @auth_required('token')
     def delete(self, id):
         ALLOWED_IMAGE_FORMATS = ['jpg', 'jpeg', 'png', 'gif']  # Add more formats as needed
         deleted_formats = []
@@ -312,6 +359,8 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
         
 class PostimageAPI(Resource):
+    @roles_required('Creator')
+    @auth_required('token')
     def post(self, id):
         if 'image' not in request.files:
             return {'error': 'No image uploaded'}, 400
@@ -341,12 +390,16 @@ class PostimageAPI(Resource):
                 return {'error': 'Post not found'}, 404
         else:
             return {'error': 'Invalid file format'}, 400
+        
+
    
 
 
     
 class AnalyticsAPI(Resource):
     @marshal_with(analytics_fields)
+    @roles_required('Creator')
+    @auth_required('token')
     def get(self):
         data = []
         analytics = Analytics.query.all()
@@ -359,6 +412,8 @@ class AnalyticsAPI(Resource):
 
 
     @marshal_with(analytics_fields)
+    @roles_required('Creator')
+    @auth_required('token')
     def post(self, id):
         args = like_parser.parse_args()
         post_id = id
@@ -424,6 +479,8 @@ class AnalyticsAPI(Resource):
 class PostCommentAPI(Resource):
 
     @marshal_with(analytics_fields)
+    @roles_required('Creator')
+    @auth_required('token')
     def post(self, id):
         args = comment_parser.parse_args()
         post_id = id
@@ -464,6 +521,8 @@ class PostCommentAPI(Resource):
     
     
 class RoleAPI(Resource):
+    @roles_required('Creator')
+    @auth_required('token')
     def get(self):
         data = []
         roles = Role.query.all()
@@ -495,7 +554,7 @@ api.add_resource(PostAPI, '/posts', '/posts/<int:id>')
 api.add_resource(AnalyticsAPI, '/analytics', '/analytics/<int:id>')
 api.add_resource(RoleAPI, '/roles')
 api.add_resource(PostCommentAPI, '/posts/<int:id>/comment')
-api.add_resource(UserProfileAPI, '/profile/<int:id>')
+api.add_resource(UserProfileAPI, '/profile/<int:id>',  '/profile/<int:id>/image')
 api.add_resource(UserAPI, '/user/<int:id>')
 api.add_resource(PostimageAPI, '/posts/<int:id>/image')
 

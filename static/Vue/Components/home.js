@@ -9,8 +9,13 @@ const Home = Vue.component("home", {
          <div class="card">
             <div class="card-header text-center"
                style="background-image: url(https://image.shutterstock.com/image-vector/seamless-pattern-computer-background-numbers-260nw-1410295883.jpg); height: 50px;">
-               <img src="https://media-exp1.licdn.com/dms/image/C4D03AQFzRzfBHzBpbA/profile-displayphoto-shrink_400_400/0/1661208519486?e=1669248000&v=beta&t=XFtl1ZvqbPC7otwvvml2B1rOUT7Z-k0dlfLz-DzRq84" class="rounded-circle" style="width: 70px; height: 70px; border: 2px solid white;" />
-            </div>
+               <div v-if="user.image">
+               <img :src="user.image" class="rounded-circle" style="width: 70px; height: 70px; border: 2px solid white;" />
+               </div>
+                <div v-else>
+                <img src="static/icons/pavatar.jpeg" class="rounded-circle" style="width: 70px; height: 70px; border: 2px solid white;" />
+                </div>
+                 </div>
             <div class="card-body mt-4" style="font-family: 'Poppins', sans-serif;">
                <p class="card-title header text-center">
                   <a @click=userprofile(user_id)
@@ -116,7 +121,14 @@ const Home = Vue.component("home", {
          <hr>
          <div v-for="post in posts" class="card mb-3" >
             <div class="card-header">
-               <img src="https://media-exp1.licdn.com/dms/image/C4E03AQGiWpTUewQ76Q/profile-displayphoto-shrink_400_400/0/1613923672228?e=1669248000&v=beta&t=CwG-2a-EpNaLNhXLKJZc9wIGyrA587NjE2cM3p9KM48" class="postphoto">
+               <span v-if="post.user_image">
+               <img  :src="post.user_image" class="postphoto">
+               </span>
+               <span v-else>
+               <img src="static/icons/pavatar.jpeg" class="postphoto">
+               </span>
+
+
                <div class="d-inline-flex flex-column ml-1 align-middle">
                   <span class="posttext">
                   <span @click=userprofile(post.user_id) style="color: #212529;">
@@ -259,7 +271,7 @@ const Home = Vue.component("home", {
                </div>
 
                <div class="my-3">
-               <label for="categoryImage">Upload Post Image</label>
+               <label for="postImage">Upload Post Image</label>
                <input type="file" @change="handleImageSelect">
                </div>
 

@@ -17,12 +17,12 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String, unique=True)
     password = db.Column(db.String(255))
     active = db.Column(db.Boolean())
-    desscription = db.Column(db.String(255))
+    description = db.Column(db.String(255))
     fs_uniquifier = db.Column(db.String(255), unique=True, nullable=False)
     roles = db.relationship('Role', secondary='roles_users',
                             backref=db.backref('users', lazy='dynamic'))
     posts = db.relationship('Post', backref='author', lazy='dynamic')
-    # image = db.Column(db.String(100))
+    image = db.Column(db.String(100))
 
 
 

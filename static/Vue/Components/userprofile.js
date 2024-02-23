@@ -9,7 +9,12 @@ const Userprofile = Vue.component("userprofile", {
          <div class="card">
             <div class="card-header text-center"
                style="background-image: url(https://image.shutterstock.com/image-vector/seamless-pattern-computer-background-numbers-260nw-1410295883.jpg); height: 50px;">
-               <img src="https://media-exp1.licdn.com/dms/image/C4D03AQFzRzfBHzBpbA/profile-displayphoto-shrink_400_400/0/1661208519486?e=1669248000&v=beta&t=XFtl1ZvqbPC7otwvvml2B1rOUT7Z-k0dlfLz-DzRq84" class="rounded-circle" style="width: 70px; height: 70px; border: 2px solid white;" />
+               <div v-if="user.image">
+               <img :src="user.image" class="rounded-circle" style="width: 70px; height: 70px; border: 2px solid white;" />
+               </div>
+                <div v-else>
+                <img src="static/icons/pavatar.jpeg" class="rounded-circle" style="width: 70px; height: 70px; border: 2px solid white;" />
+                </div>
             </div>
             <div class="card-body mt-4" style="font-family: 'Poppins', sans-serif;">
                <p class="card-title header text-center">
@@ -109,7 +114,13 @@ const Userprofile = Vue.component("userprofile", {
       <div class="col-8">
          <div v-for="post in posts" class="card mb-3" >
             <div class="card-header">
-               <img src="https://media-exp1.licdn.com/dms/image/C4E03AQGiWpTUewQ76Q/profile-displayphoto-shrink_400_400/0/1613923672228?e=1669248000&v=beta&t=CwG-2a-EpNaLNhXLKJZc9wIGyrA587NjE2cM3p9KM48" class="postphoto">
+
+               <span v-if="post.user_image">
+               <img  :src="post.user_image" class="postphoto">
+               </span>
+               <span v-else>
+               <img src="static/icons/pavatar.jpeg" class="postphoto">
+               </span>
                <div class="d-inline-flex flex-column ml-1 align-middle">
                   <span class="posttext">
                   <span @click=userprofile(post.user_id) style="color: #212529;">
@@ -297,7 +308,7 @@ const Userprofile = Vue.component("userprofile", {
                      <textarea v-model="post.content" class="form-control" id="postcontent" name="postcontent" rows="5" required></textarea>
                   </div>
                   <div class="my-3">
-                    <label for="categoryImage">Edit Post</label>
+                    <label for="postImage">Edit Post</label>
                     <input type="file" @change="handleImageSelect">
                     </div>
                </div>
@@ -325,6 +336,10 @@ const Userprofile = Vue.component("userprofile", {
                   <div class="my-3">
                      <label for="postContent">Edit Description:</label>
                      <textarea v-model="user.description" class="form-control" id="description" name="description" rows="5" required></textarea>
+                  </div>
+                  <div class="my-3">
+                  <label for="userImage">Edit Post</label>
+                  <input type="file" @change="handleImageSelect">
                   </div>
                </div>
                <div class="modal-footer">
@@ -405,6 +420,13 @@ const Userprofile = Vue.component("userprofile", {
                         });
 
                         if (res.ok) {
+                            if (this.selectedImage) {
+                                await this.handleuserImageUpload(user.id);
+                                if (res.ok) {
+                                    this.getuser(user.id);
+                                }
+                             }   
+
                             this.getuser(user.id);
                         } else {
                             const errorData = await res.json();
@@ -461,7 +483,11 @@ const Userprofile = Vue.component("userprofile", {
                         if (res.ok) {
                             if (this.selectedImage) {
                                 await this.handleImageUpload(post.id);
+                                if (res.ok) {
+                                    this.getposts();
+                                }
                              }
+
                             this.getposts();
                         } else {
                             const errorData = await res.json();
@@ -478,6 +504,33 @@ const Userprofile = Vue.component("userprofile", {
                       formData.append('image', this.selectedImage);
                 
                       const res = await fetch('/posts/' + post_id + '/image', {
+                        method: 'POST',
+                        headers: {
+                          'Authentication-Token': this.token,
+                          'Authentication-Role': this.userRole,
+                        },
+                        body: formData,
+                      });
+                
+                      if (res.ok) {
+                        const data = await res.json();
+                        console.log(data); // Handle success response
+                      } else {
+                        const data = await res.json();
+                        console.error(data);
+                        // Handle error response related to image upload
+                      }
+                    } catch (error) {
+                      console.error(error); // Handle fetch error
+                    }
+                  },
+
+                  async handleuserImageUpload(user_id) {
+                    try {
+                      const formData = new FormData();
+                      formData.append('image', this.selectedImage);
+                
+                      const res = await fetch('/profile/' + user_id + '/image', {
                         method: 'POST',
                         headers: {
                           'Authentication-Token': this.token,
