@@ -7,7 +7,7 @@ This project is a sophisticated multi-user Social Media web application dashboar
 - [Social Media web application dashboard (Linkedin Clone)](#social-media-web-application-dashboard-linkedin-clone)
   - [Installation](#installation)
   - [Usage](#usage)
-  <!-- - [Screenshots](#screenshots) -->
+  - [Screenshots](#screenshots)
   - [Description](#description)
   - [Architecture and Features](#architecture-and-features)
 
@@ -37,17 +37,14 @@ This project is a sophisticated multi-user Social Media web application dashboar
 Register as a new user and login to access social media dashboard
 
 
-<!-- ## Screenshots
+## Screenshots
 
-- **Admin Home Page**:
-![Admin Home Page](static/Screenshots/admin.png)
+- **Home Page**:
+![Home Page](static/screenshots/home.png)
 
-- **Manager Home Page**:
-![Manager Home Page](static/Screenshots/manager.png)
+- **My Profile Page**:
+![Manager Home Page](static/screenshots/myprofile.png)
 
-- **Customer Home Page**:
-![Customer Home Page](static/Screenshots/customer1.png)
-![Customer Home Page](static/Screenshots/customer2.png) -->
 
 
 
