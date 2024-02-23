@@ -1,3 +1,5 @@
+import os
+
 class Config(object):
     DEBUG = False
     TESTING = False
@@ -5,7 +7,7 @@ class Config(object):
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///database.sqlite3'
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
     SECRET_KEY = "thisissecter1"
     SECURITY_PASSWORD_SALT = "thisissaltt1"
     SQLALCHEMY_TRACK_MODIFICATIONS = False

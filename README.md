@@ -26,7 +26,7 @@ This project is a sophisticated multi-user Social Media web application dashboar
 `export DATABASE_URL=sqlite:///database.sqlite3`
 
 5. Create a SQLite3 database by running:
-`python upload_initial_data.py`
+`python3 upload_initial_data.py`
 
 6. Start the Flask server:
 `python3 app.py`
