@@ -80,4 +80,6 @@ The project's architecture consists of several key components:
 
 - **Role-based Access Control**: Creators can edit and delete their posts.
 
+- **Websockets**: Real-time updates and dynamic interactions are enabled through websockets.
+
 
