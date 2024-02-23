@@ -14,10 +14,10 @@ const Home = Vue.component("home", {
             <div class="card-body mt-4" style="font-family: 'Poppins', sans-serif;">
                <p class="card-title header text-center">
                   <a @click=userprofile(user_id)
-                     style="color: #212529;">{{user}}</a>
+                     style="color: #212529;">{{ user.name }}</a>
                </p>
                <div class="text-center" style="margin-bottom: 10px; color: #5f5f5f;">
-                  <span class="text-center" style="font-size: 13px;">Full Stack Application Developer</span>
+                  <span class="text-center" style="font-size: 13px;">{{ user.description }}</span>
                </div>
                <hr>
                <div class="card-text">
@@ -141,7 +141,7 @@ const Home = Vue.component("home", {
                   </p>
                </div>
                <div>
-                  <img src="https://pbs.twimg.com/media/Em2_xBbXUAEVDx1.jpg" class="card-img-top mb-1"
+                  <img :src="post.image" class="card-img-top mb-1"
                      alt="..." />
                </div>
                <div class="row">
@@ -257,6 +257,13 @@ const Home = Vue.component("home", {
                   <label for="postContent">Post Content:</label>
                   <textarea v-model="postContent" class="form-control" id="postContent" name="postContent" rows="5" required></textarea>
                </div>
+
+               <div class="my-3">
+               <label for="categoryImage">Upload Category Image</label>
+               <input type="file" @change="handleImageSelect">
+               </div>
+
+
             </div>
             <div class="modal-footer">
                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -303,10 +310,16 @@ const Home = Vue.component("home", {
         user: localStorage.getItem('username'),
         user_id: localStorage.getItem('id'),
         postcomment: null,
+        user : [],
+        selectedImage: null,
       };
     },
 
     methods: {
+
+      handleImageSelect(event) {
+         this.selectedImage = event.target.files[0];
+       },
 
         async getposts() {
             try {
@@ -357,8 +370,13 @@ const Home = Vue.component("home", {
                             created_at: formattedDateTime,
                         }),
                     });
-            
+
                     if (res.ok) {
+                        const data = await res.json();
+                        const post_id = data.id;
+                        if (this.selectedImage) {
+                           await this.handleImageUpload(post_id);
+                        }
                         this.getposts();
                     } else {
                         const errorData = await res.json();
@@ -368,6 +386,37 @@ const Home = Vue.component("home", {
                     console.error(error);
                 }
             },
+
+            async handleImageUpload(post_id) {
+               try {
+                 const formData = new FormData();
+                 formData.append('image', this.selectedImage);
+           
+                 const res = await fetch('/posts/' + post_id + '/image', {
+                   method: 'POST',
+                   headers: {
+                     'Authentication-Token': this.token,
+                     'Authentication-Role': this.userRole,
+                   },
+                   body: formData,
+                 });
+           
+                 if (res.ok) {
+                   const data = await res.json();
+                   console.log(data); // Handle success response
+                 } else {
+                   const data = await res.json();
+                   console.error(data);
+                   // Handle error response related to image upload
+                 }
+               } catch (error) {
+                 console.error(error); // Handle fetch error
+               }
+             },
+
+
+
+
 
             async addlike(post_id) {
                 try {
@@ -519,6 +568,30 @@ const Home = Vue.component("home", {
                     this.$router.push("/profile/" + user_id);
                 },
 
+
+                async getuser(id) {
+                  try {
+                  const res = await fetch('/user/'+id, {
+                      headers: {
+                          'Authentication-Token': this.token,
+                          'Authentication-Role': this.userRole,
+                      },
+                  }
+                  
+                  );
+                  if (res.ok) {
+                      const data = await res.json();
+                      this.user = data;
+                      }
+                      else {
+                          const errorData = await res.json();
+                          console.error(errorData);
+                      }
+                  } catch (error) {
+                      console.error(error);
+                  }
+                  },
+
                 
 
 
@@ -532,6 +605,7 @@ const Home = Vue.component("home", {
     mounted() {
         document.title = "Home";
         this.getposts();
+        this.getuser(this.user_id);
     },
 
   });

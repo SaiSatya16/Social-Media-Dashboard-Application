@@ -7,9 +7,10 @@ from flask import make_response
 from flask_security import auth_required, roles_required
 import os
 from functools import wraps
-from flask import abort
+from flask import abort, request
 from flask_security import roles_accepted
 from sqlalchemy.exc import IntegrityError
+from PIL import Image
 
 api = Api()
 
@@ -122,7 +123,7 @@ class UserAPI(Resource):
         user = User.query.filter_by(id=id).first()
         if user is None:
             raise NotFoundError(status_code=404)
-        return {"id": user.id, "username": user.username, "description": user.desscription}
+        return {"id": user.id, "name": user.username, "description": user.desscription}
 
 
     def put(self, id):
@@ -220,7 +221,8 @@ class PostAPI(Resource):
                 "created_at": post.created_at,
                 "updated_at": post.updated_at,
                 "analytics": analytics,
-                "username": post.author.username
+                "username": post.author.username,
+                "image": post.image
             })
 
         return data
@@ -278,6 +280,45 @@ class PostAPI(Resource):
             return "Post deleted successfully", 204
         else:
             raise NotFoundError(status_code=404)
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+        
+class PostimageAPI(Resource):
+    def post(self, id):
+        if 'image' not in request.files:
+            return {'error': 'No image uploaded'}, 400
+
+        image_file = request.files['image']
+        if image_file.filename == '':
+            return {'error': 'No selected file'}, 400
+
+        if image_file and allowed_file(image_file.filename):
+            # Ensure the path exists
+            upload_path = f'static/uploads/'
+            if not os.path.exists(upload_path):
+                os.makedirs(upload_path)
+
+            image = Image.open(image_file)
+            # Save the image with the category ID as the name and in the correct format
+            image.save(f'{upload_path}/{id}_post_image.{image.format.lower()}')
+            image_path = f'/static/uploads/{id}_post_image.{image.format.lower()}'
+
+            # Update the database with the image path
+            post = Post.query.filter_by(id=id).first()
+            if post:
+                post.image = image_path
+                db.session.commit()
+                return {'message': 'Image uploaded successfully'}, 200
+            else:
+                return {'error': 'Post not found'}, 404
+        else:
+            return {'error': 'Invalid file format'}, 400
+   
+
+
     
 class AnalyticsAPI(Resource):
     @marshal_with(analytics_fields)
@@ -431,7 +472,7 @@ api.add_resource(RoleAPI, '/roles')
 api.add_resource(PostCommentAPI, '/posts/<int:id>/comment')
 api.add_resource(UserProfileAPI, '/profile/<int:id>')
 api.add_resource(UserAPI, '/user/<int:id>')
-
+api.add_resource(PostimageAPI, '/posts/<int:id>/image')
 
        
 

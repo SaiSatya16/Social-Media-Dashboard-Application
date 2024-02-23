@@ -14,7 +14,7 @@ const Userprofile = Vue.component("userprofile", {
             <div class="card-body mt-4" style="font-family: 'Poppins', sans-serif;">
                <p class="card-title header text-center">
                   <a @click=userprofile(user_id)
-                     style="color: #212529;">{{ user.username }}</a>
+                     style="color: #212529;">{{ user.name }}</a>
                </p>
                <div class="text-center" style="margin-bottom: 10px; color: #5f5f5f;">
                   <span class="text-center" style="font-size: 13px;"> {{ user.description }} </span>
@@ -350,7 +350,7 @@ const Userprofile = Vue.component("userprofile", {
                 current_user_id: localStorage.getItem('id'),
                 postcomment: null,
                 current_user : true,
-                user : null,
+                user : [],
             }
         },
 
