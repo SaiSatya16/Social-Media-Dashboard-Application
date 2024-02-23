@@ -117,7 +117,7 @@ const Userprofile = Vue.component("userprofile", {
                   </span>
                   </span>
                   <span class="profile-desc">
-                  {{user.description}}
+                  {{post.user_description}}
                   </span>
                   <span class="profile-desc"> {{post.created_at}}
                   <i class="fas fa-globe-americas fa-sm">
@@ -399,7 +399,7 @@ const Userprofile = Vue.component("userprofile", {
                                 'Authentication-Role': this.userRole,
                             },
                             body: JSON.stringify({
-                                username: user.username,
+                                username: user.name,
                                 description: user.description,
                             }),
                         });

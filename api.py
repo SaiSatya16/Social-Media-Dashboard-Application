@@ -166,6 +166,7 @@ class UserProfileAPI(Resource):
                     "updated_at": analytic.updated_at,
                     "user_id": analytic.user_id,
                     "username": user.username
+                    
                 })
             
             data.append({
@@ -177,7 +178,9 @@ class UserProfileAPI(Resource):
                 "updated_at": post.updated_at,
                 "analytics": analytics,
                 "username": post.author.username,
-                "image": post.image
+                "image": post.image,
+                "user_description": post.author.desscription
+
             })
 
         return data
@@ -208,7 +211,7 @@ class PostAPI(Resource):
                     "created_at": analytic.created_at,
                     "updated_at": analytic.updated_at,
                     "user_id": analytic.user_id,
-                    "username": user.username
+                    "username": user.username,
                 })
             
             
@@ -223,7 +226,9 @@ class PostAPI(Resource):
                 "updated_at": post.updated_at,
                 "analytics": analytics,
                 "username": post.author.username,
-                "image": post.image
+                "image": post.image,
+                "user_description": post.author.desscription
+
             })
 
         return data

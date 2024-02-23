@@ -124,7 +124,7 @@ const Home = Vue.component("home", {
                   </span>
                   </span>
                   <span class="profile-desc">
-                  {{user.description}}
+                  {{post.user_description}}
                   </span>
                   <span class="profile-desc"> {{post.created_at}}
                   <i class="fas fa-globe-americas fa-sm">
