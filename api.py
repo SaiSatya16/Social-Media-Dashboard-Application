@@ -227,11 +227,25 @@ class UserProfileAPI(Resource):
                 os.makedirs(upload_path)
 
             image = Image.open(image_file)
-            # Save the image with the category ID as the name and in the correct format
-            image.save(f'{upload_path}/{id}_user_image.{image.format.lower()}')
-            image_path = f'/static/uploads/{id}_user_image.{image.format.lower()}'
 
-            # Update the database with the image path
+            image_path = os.path.join(upload_path, f'{id}_user_image.{image.format.lower()}')
+
+            image_buffer = io.BytesIO()
+            image.save(image_buffer, format='JPEG')
+            image_bytes = image_buffer.getvalue()
+
+            if len(image_bytes) > 1000 * 1024:
+                resize_image(image_file, image_path) 
+                resized_image = Image.open(image_path)
+            else:
+                resized_image = image
+            
+            resized_image.save(image_path, quality=90)
+
+
+
+            
+           
             user = User.query.filter_by(id=id).first()
             if user:
                 user.image = image_path
