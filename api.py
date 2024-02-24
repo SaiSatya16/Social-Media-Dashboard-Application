@@ -239,9 +239,16 @@ class UserProfileAPI(Resource):
                 resized_image = Image.open(image_path)
             else:
                 resized_image = image
+            quality = 95  # Start with high quality
+            while quality >= 70:  # Don't go below 10
+                buffer = io.BytesIO()
+                resized_image.save(buffer, format="JPEG", quality=quality)
+                img_byte_arr = buffer.getvalue()
+                if len(img_byte_arr) < 50 * 1024:  # Check if the size is less than 50KB
+                    break
+                quality -= 5 
             
-            resized_image.save(image_path, quality=90)
-
+            resized_image.save(image_path, quality=quality)
 
 
             
@@ -430,8 +437,17 @@ class PostimageAPI(Resource):
                 resized_image = Image.open(image_path)
             else:
                 resized_image = image
+
+            quality = 95  # Start with high quality
+            while quality >= 70:  # Don't go below 10
+                buffer = io.BytesIO()
+                resized_image.save(buffer, format="JPEG", quality=quality)
+                img_byte_arr = buffer.getvalue()
+                if len(img_byte_arr) < 50 * 1024:  # Check if the size is less than 50KB
+                    break
+                quality -= 5 
             
-            resized_image.save(image_path, quality=90)
+            resized_image.save(image_path, quality=quality)
 
             # Update the database with the image path
             post = Post.query.filter_by(id=id).first()
