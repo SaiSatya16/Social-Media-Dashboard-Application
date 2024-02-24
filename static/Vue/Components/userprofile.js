@@ -59,7 +59,7 @@ const Userprofile = Vue.component("userprofile", {
                      <span
                         class="ml-1 font-weight-bold"
                         style="font-size: 13px; color: #5f5f5f">
-                     kodluyoruz
+                     AI
                      </span>
                   </div>
                   <div>
@@ -93,7 +93,7 @@ const Userprofile = Vue.component("userprofile", {
                      <i class="fas fa-hashtag" style="font-size: 13px;">
                      </i>
                      <span class="ml-1 font-weight-bold" style="font-size: 13px; color: #5f5f5f">
-                     kodluyoruz
+                     Blockchain
                      </span>
                   </div>
                   <div>

@@ -52,7 +52,7 @@ const Home = Vue.component("home", {
                      <span
                         class="ml-1 font-weight-bold"
                         style="font-size: 13px; color: #5f5f5f">
-                     kodluyoruz
+                     AI
                      </span>
                   </div>
                   <div>
@@ -86,7 +86,7 @@ const Home = Vue.component("home", {
                      <i class="fas fa-hashtag" style="font-size: 13px;">
                      </i>
                      <span class="ml-1 font-weight-bold" style="font-size: 13px; color: #5f5f5f">
-                     kodluyoruz
+                     Blockchain
                      </span>
                   </div>
                   <div>
