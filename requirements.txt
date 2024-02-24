@@ -37,7 +37,7 @@ lml==0.1.0
 MarkupSafe==2.1.2
 packaging==23.2
 passlib==1.7.4
-Pillow==10.1.0
+Pillow==9.5.0
 prompt-toolkit==3.0.40
 psycopg2-binary==2.9.9
 pyexcel==0.7.0

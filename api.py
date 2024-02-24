@@ -11,6 +11,7 @@ from flask import abort, request
 from flask_security import roles_accepted
 from sqlalchemy.exc import IntegrityError
 from PIL import Image
+import io
 
 api = Api()
 
@@ -23,6 +24,24 @@ def any_role_required(*roles):
             return fn(*args, **kwargs)
         return decorator
     return wrapper
+
+def resize_image(input_path, output_path, scale_percent=20, quality=90, dpi=72):
+    # Open the image
+    original_image = Image.open(input_path)
+
+    # Calculate new dimensions
+    width, height = original_image.size
+    new_width = int(width * scale_percent / 100)
+    new_height = int(height * scale_percent / 100)
+
+    # Resize the image
+    resized_image = original_image.resize((new_width, new_height), Image.ANTIALIAS)
+
+    # Set the DPI
+    resized_image.info['dpi'] = (dpi, dpi)
+
+    # Save the resized image with the specified quality
+    resized_image.save(output_path, quality=quality)
 
 
 #==========================Validation========================================================
@@ -385,8 +404,20 @@ class PostimageAPI(Resource):
 
             image = Image.open(image_file)
             # Save the image with the category ID as the name and in the correct format
-            image.save(f'{upload_path}/{id}_post_image.{image.format.lower()}')
-            image_path = f'/static/uploads/{id}_post_image.{image.format.lower()}'
+            # image.save(f'{upload_path}/{id}_post_image.{image.format.lower()}')
+            image_path = os.path.join(upload_path, f'{id}_post_image.{image.format.lower()}')
+
+            image_buffer = io.BytesIO()
+            image.save(image_buffer, format='JPEG')
+            image_bytes = image_buffer.getvalue()
+
+            if len(image_bytes) > 1000 * 1024:
+                resize_image(image_file, image_path) 
+                resized_image = Image.open(image_path)
+            else:
+                resized_image = image
+            
+            resized_image.save(image_path, quality=90)
 
             # Update the database with the image path
             post = Post.query.filter_by(id=id).first()
