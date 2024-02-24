@@ -17,7 +17,7 @@ const Navbar = Vue.component('Navbar', {
         <li v-if="['Admin', 'Creator'].includes(role)" class="nav-item">
         <a class="nav-link" href="https://github.com/SaiSatya16/Social-Media-Dashboard-Application" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
           <i class="fas fa-code fa-lg text-center"></i>
-          <div class="menutext mt-2"><router-link class="menutext mt-2" to="/source">Source Code</router-link></div>
+          <div class="menutext mt-2">Source Code</div>
         </a>
       </li>
 
