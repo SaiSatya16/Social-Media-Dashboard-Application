@@ -101,7 +101,9 @@ def create_post():
     db.session.commit()
     socketio.emit('newPostEntry', namespace='/Posts')
 
-    return jsonify({"message": "Post Created"}), 201
+    data = marshal(post, post_fields)
+
+    return jsonify(data), 201
 
 
 @socketio.on('connect', namespace='/Posts')
