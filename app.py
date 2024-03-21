@@ -24,6 +24,11 @@ CORS(app, resources={r"/socket.io/*": {"origins": "*"}})
 app.security = Security(app, datastore)
 app.app_context().push()
 
+def get_user_roles():
+    if current_user.is_authenticated:
+        return [role.name for role in current_user.roles]  # Assuming roles have a 'name' attribute
+    else:
+        return []  # Return an empty list if the user is not authenticated or roles are not available
 
 @app.route('/')
 def index():
@@ -84,7 +89,11 @@ post_fields = {
     'image': fields.String
 }
 
+
+
 @app.post('/posts')
+@roles_required('Creator')
+@auth_required('token')
 def create_post():
     data = request.get_json()
     title = data.get('title', None)

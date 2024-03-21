@@ -280,8 +280,8 @@ class AlluserAPI(Resource):
 
 
 class PostAPI(Resource):
-    @roles_required('Creator')
     @auth_required('token')
+    @roles_required("Creator")
     def get(self):
         data = []
 

@@ -2,7 +2,7 @@
 
 This project is a sophisticated multi-user Social Media web application dashboard (Linkedin Clone) that seamlessly integrates Vue.js for the frontend and Flask for the backend. Bootstrap ensures an intuitive, user-friendly interface, allowing for dynamic interactions and real-time updates. The application is designed to provide a comprehensive and seamless social media experience.
 
-Browse to the [Social Media web application dashboard (Linkedin Clone)](http://satya-linkedin-clone.ap-south-1.elasticbeanstalk.com) to view the deployed application.
+Browse to the [Social Media web application dashboard (Linkedin Clone)](http://satyaprojects.ap-south-1.elasticbeanstalk.com/linkedin-clone#) to view the deployed application.
 
 - [Social Media web application dashboard (Linkedin Clone)](#social-media-web-application-dashboard-linkedin-clone)
   - [Installation](#installation)

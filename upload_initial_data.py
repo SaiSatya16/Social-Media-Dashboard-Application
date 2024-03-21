@@ -37,10 +37,17 @@ with app.app_context():
     db.create_all()
 
     # Create roles if they don't exist
-    admin_role = datastore.find_or_create_role(name="Admin", description="user is Admin")
-    creator_role = datastore.find_or_create_role(name="Creator", description="user is Creator")
+    datastore.find_or_create_role(name="Admin", description="user is Admin")
+    datastore.find_or_create_role(name="Creator", description="user is Creator")
 
     db.session.commit()
+
+    if not datastore.find_user(email="admin@gmail.com"):
+        datastore.create_user(
+            username="admin",
+            email="admin@gmail.com",
+            password= generate_password_hash("admin"),
+            roles=["Admin"])
 
     # Real-world user data
     users_data = [
@@ -63,7 +70,7 @@ with app.app_context():
                 username=username,
                 email=email,
                 password=password,
-                roles=[creator_role],
+                roles=["Creator"],
                 description=description,
                 image=image
             )
